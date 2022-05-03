@@ -9,8 +9,9 @@ public class GraphicsCanvas extends Canvas {
      * Constructor for GraphicsCanvas class.
      */
     public GraphicsCanvas() {
+        super();
         setBackground(Color.GRAY);
-        //setSize(300, 200);
+        setSize(600, 400);
     }
 
     public void paint(Graphics g) {

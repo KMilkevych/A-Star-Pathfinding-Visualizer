@@ -113,8 +113,7 @@ public class GUI {
         westSubPanel.add(runButton);
         
         // Add combobox for selection of algorithm
-        String[] algorithmsList = new String[] {"A*", "Breadth First Search", "Dijkstra's Algorithm", "Bellman Ford"};
-        JComboBox algorithmComboBox = new JComboBox<>(algorithmsList);
+        JComboBox algorithmComboBox = new JComboBox<>(new String[] {"A*", "Breadth First Search", "Dijkstra's Algorithm", "Bellman Ford"});
         westSubPanel.add(algorithmComboBox);
 
         // Add a big CLEAR button
