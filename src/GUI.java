@@ -85,39 +85,56 @@ public class GUI {
 
         // Create a "Settings" label
         JLabel label = new JLabel("Settings");
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
         westSuperPanel.add(label); 
 
         // Create a sub panel to hold some components
         JPanel westSubPanel = new JPanel();
-        westSubPanel.setLayout(new GridLayout(4, 2, 0, 0));
+        westSubPanel.setLayout(new GridBagLayout());
         westSuperPanel.add(westSubPanel);
+
+        // Create GridBagConstraits
+        GridBagConstraints c = new GridBagConstraints();
         
         // Create "Show vizualization:" label
         JLabel showVizualizationLabel = new JLabel("Show vizualization:");
-        westSubPanel.add(showVizualizationLabel);
+        c.gridx = 0;
+        c.gridy = 0;
+        westSubPanel.add(showVizualizationLabel, c);
         
         // Create checkbox
         JCheckBox showVizualizationCB = new JCheckBox();
-        westSubPanel.add(showVizualizationCB);
+        c.gridx = 1;
+        c.gridy = 0;
+        westSubPanel.add(showVizualizationCB, c);
 
         // Create "Vizualization speed:" label
         JLabel vizualizationSpeedLabel = new JLabel("Vizualization speed:");
-        westSubPanel.add(vizualizationSpeedLabel);
+        c.gridx = 0;
+        c.gridy = 1;
+        westSubPanel.add(vizualizationSpeedLabel, c);
 
         // Create slider
         JSlider vizualizationSpeedSlider = new JSlider();
-        westSubPanel.add(vizualizationSpeedSlider);
+        c.gridx = 1;
+        c.gridy = 1;
+        westSubPanel.add(vizualizationSpeedSlider, c);
 
         // Create RUN button
         JButton runButton = new JButton("Run");
-        westSubPanel.add(runButton);
+        c.gridx = 0;
+        c.gridy = 2;
+        westSubPanel.add(runButton, c);
         
         // Add combobox for selection of algorithm
         JComboBox algorithmComboBox = new JComboBox<>(new String[] {"A*", "Breadth First Search", "Dijkstra's Algorithm", "Bellman Ford"});
-        westSubPanel.add(algorithmComboBox);
+        c.gridx = 1;
+        c.gridy = 2;
+        westSubPanel.add(algorithmComboBox, c);
 
         // Add a big CLEAR button
         JButton clearButton = new JButton("Clear");
+        clearButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         westSuperPanel.add(clearButton);
 
         // Add separator
