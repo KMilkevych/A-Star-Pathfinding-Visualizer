@@ -14,6 +14,9 @@ public class GraphicsCanvas extends Canvas {
         setSize(600, 400);
     }
 
+    /**
+     * Paints content to the canvas using specified graphics.
+     */
     public void paint(Graphics g) {
         g.setColor(Color.RED);
         g.fillOval(75, 75, 150, 75);
