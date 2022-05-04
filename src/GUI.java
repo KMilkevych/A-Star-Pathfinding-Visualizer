@@ -2,6 +2,9 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+/**
+ * GUI Class for managing the Graphical User Interface
+ */
 public class GUI {
 
     private JFrame frame;
