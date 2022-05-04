@@ -1,7 +1,5 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.GenericDeclaration;
-
 import javax.swing.*;
 
 /**
