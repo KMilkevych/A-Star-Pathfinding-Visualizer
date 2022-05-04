@@ -10,7 +10,7 @@ public class GraphicsCanvas extends Canvas {
      */
     public GraphicsCanvas() {
         super();
-        setBackground(Color.GRAY);
+        setBackground(Color.LIGHT_GRAY);
         setSize(600, 400);
     }
 
