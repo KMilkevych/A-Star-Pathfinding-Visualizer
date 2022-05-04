@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.GenericDeclaration;
+
 import javax.swing.*;
 
 /**
@@ -55,12 +57,11 @@ public class GUI {
         menubar.add(fileMenu);
 
         // Create menu items for File Menu
-        JMenuItem openItem = new JMenuItem("Open");
-        fileMenu.add(openItem);
+        //JMenuItem openItem = new JMenuItem("Open");
+        //fileMenu.add(openItem);
         JMenuItem quitItem = new JMenuItem("Quit");
-        fileMenu.add(quitItem);
         quitItem.addActionListener(e -> quit());
-
+        fileMenu.add(quitItem);
 
         // Create Help Menu
         JMenu helpMenu = new JMenu("Help");
@@ -68,6 +69,7 @@ public class GUI {
 
         // Create menu items for Help Menu
         JMenuItem showHelpItem = new JMenuItem("Show Help");
+        showHelpItem.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Software written by Kostiantyn V. Milkevych.\nSource and Information on GitHub.com/KMilkevych", "Help", JOptionPane.INFORMATION_MESSAGE));
         helpMenu.add(showHelpItem);
     }
 
@@ -78,23 +80,26 @@ public class GUI {
     private void makeWestLayout(Container contentPane) {
         // Create a panel to hold the components
         JPanel westPanel = new JPanel();
-        westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.X_AXIS));
+        westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.Y_AXIS));
         contentPane.add(westPanel, BorderLayout.WEST);
 
-        // Create a parent panel
-        JPanel westSuperPanel = new JPanel();
-        westSuperPanel.setLayout(new BoxLayout(westSuperPanel, BoxLayout.Y_AXIS));
-        westPanel.add(westSuperPanel);
+        // Make settings panel
+        makeSettingsSubPanel(westPanel);
 
-        // Create a "Settings" label
-        JLabel label = new JLabel("Settings");
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);
-        westSuperPanel.add(label); 
+        // Make configuration panel
+        makeConfigurationSubPanel(westPanel);
+    }
 
-        // Create a sub panel to hold some components
-        JPanel westSubPanel = new JPanel();
-        westSubPanel.setLayout(new GridBagLayout());
-        westSuperPanel.add(westSubPanel);
+    /**
+     * Creates a Settings panel containing controls for all settings, such as vizualization speed, and vizualization type
+     * @param panel - Panel to add settingspanel to
+     */
+    private void makeSettingsSubPanel(JPanel panel) {
+        // Create a "Settings" panel to hold some components
+        JPanel settingsPanel = new JPanel();
+        settingsPanel.setLayout(new GridBagLayout());
+        settingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Settings"));
+        panel.add(settingsPanel);
 
         // Create GridBagConstraits
         GridBagConstraints c = new GridBagConstraints();
@@ -103,45 +108,117 @@ public class GUI {
         JLabel showVizualizationLabel = new JLabel("Show vizualization:");
         c.gridx = 0;
         c.gridy = 0;
-        westSubPanel.add(showVizualizationLabel, c);
+        c.anchor = GridBagConstraints.EAST;
+        settingsPanel.add(showVizualizationLabel, c);
         
         // Create checkbox
         JCheckBox showVizualizationCB = new JCheckBox();
         c.gridx = 1;
         c.gridy = 0;
-        westSubPanel.add(showVizualizationCB, c);
+        c.anchor = GridBagConstraints.WEST;
+        settingsPanel.add(showVizualizationCB, c);
 
         // Create "Vizualization speed:" label
         JLabel vizualizationSpeedLabel = new JLabel("Vizualization speed:");
         c.gridx = 0;
         c.gridy = 1;
-        westSubPanel.add(vizualizationSpeedLabel, c);
+        c.anchor = GridBagConstraints.EAST;
+        settingsPanel.add(vizualizationSpeedLabel, c);
 
         // Create slider
         JSlider vizualizationSpeedSlider = new JSlider();
         c.gridx = 1;
         c.gridy = 1;
-        westSubPanel.add(vizualizationSpeedSlider, c);
+        c.anchor = GridBagConstraints.WEST;
+        settingsPanel.add(vizualizationSpeedSlider, c);
 
-        // Create RUN button
-        JButton runButton = new JButton("Run");
+        // Create "Pathfinding algorithm" label
+        JLabel pathfindingAlgorithmLabel = new JLabel("Algorithm:");
         c.gridx = 0;
         c.gridy = 2;
-        westSubPanel.add(runButton, c);
+        c.anchor = GridBagConstraints.EAST;
+        settingsPanel.add(pathfindingAlgorithmLabel, c);
         
         // Add combobox for selection of algorithm
         JComboBox algorithmComboBox = new JComboBox<>(new String[] {"A*", "Breadth First Search", "Dijkstra's Algorithm", "Bellman Ford"});
         c.gridx = 1;
         c.gridy = 2;
-        westSubPanel.add(algorithmComboBox, c);
+        c.anchor = GridBagConstraints.WEST;
+        settingsPanel.add(algorithmComboBox, c);
+    }
 
-        // Add a big CLEAR button
+    /**
+     * Creates a Configuration sub panel containing information about current/last simulation, as well as RUN and CLEAR buttons
+     * @param panel - panel to add configuration panel to
+     */
+    private void makeConfigurationSubPanel(JPanel panel) {
+        // Create configuration panel
+        JPanel configurationPanel = new JPanel();
+        configurationPanel.setLayout(new GridBagLayout());
+        configurationPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Configuration"));
+        panel.add(configurationPanel);
+
+        // Create GridBagConstraints for layout
+        GridBagConstraints c = new GridBagConstraints();
+
+        // Create Labels for showing info on startpoint, endpoint, shortest path length and computation time
+        JLabel startLabel = new JLabel("Startpoint:");
+
+        JLabel startValLabel = new JLabel("(X, X)");
+        
+        JLabel endLabel = new JLabel("Endpoint:");
+
+        JLabel endValLabel = new JLabel("(X, X)");
+
+        JLabel shortestPathLabel = new JLabel("Shortest path:");
+
+        JLabel shortestPathValLabel = new JLabel("N/A");
+
+        JLabel computationTimeLabel = new JLabel("Time:");
+
+        JLabel computationTimeValLabel = new JLabel("Xs");
+
+        // Add left-side labels to layout
+        c.gridx = 0;
+        c.anchor = GridBagConstraints.EAST;
+
+        c.gridy = 0;
+        configurationPanel.add(startLabel, c);
+
+        c.gridy = 1;
+        configurationPanel.add(endLabel, c);
+
+        c.gridy = 2;
+        configurationPanel.add(shortestPathLabel, c);
+
+        c.gridy = 3;
+        configurationPanel.add(computationTimeLabel, c);
+
+        // Add right-side labels to layout
+        c.gridx = 1;
+        c.anchor = GridBagConstraints.WEST;
+
+        c.gridy = 0;
+        configurationPanel.add(startValLabel, c);
+
+        c.gridy = 1;
+        configurationPanel.add(endValLabel, c);
+
+        c.gridy = 2;
+        configurationPanel.add(shortestPathValLabel, c);
+
+        c.gridy = 3;
+        configurationPanel.add(computationTimeValLabel, c);
+
+        // Now create the RUN and CLEAR buttons
+        c.gridy = 4;
+        JButton runButton = new JButton("Run");
+        c.gridx = 0;
+        configurationPanel.add(runButton, c);
+        
         JButton clearButton = new JButton("Clear");
-        clearButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        westSuperPanel.add(clearButton);
-
-        // Add separator
-        westPanel.add(new JSeparator(SwingConstants.VERTICAL));
+        c.gridx = 1;
+        configurationPanel.add(clearButton, c);
     }
 
     /**
