@@ -7,6 +7,7 @@ import javax.swing.*;
  */
 public class GUI {
 
+    // Main frame of the application (main window)
     private JFrame frame;
 
     /**
