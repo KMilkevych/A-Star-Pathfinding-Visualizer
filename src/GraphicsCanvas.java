@@ -5,6 +5,9 @@ import java.awt.*;
  */
 public class GraphicsCanvas extends Canvas {
     
+    private int gridCellCountX = 40;
+    private int gridCellCountY = 20;
+
     /**
      * Constructor for GraphicsCanvas class.
      */
@@ -18,8 +21,18 @@ public class GraphicsCanvas extends Canvas {
      * Paints content to the canvas using specified graphics.
      */
     public void paint(Graphics g) {
-        g.setColor(Color.RED);
-        g.fillOval(75, 75, 150, 75);
+        g.setColor(Color.BLACK);
+        int gridSize = Math.min(this.getWidth()/gridCellCountX, this.getHeight()/gridCellCountY);
+
+        for (int x = 0; x < gridCellCountX; x++) {
+            int p = x * gridSize;
+            g.drawLine(p, 0, p, this.getHeight());
+        }
+
+        for (int y = 0; y < gridCellCountY; y++) {
+            int p = y * gridSize;
+            g.drawLine(0, p, this.getWidth(), p);
+        }
     }
 
 }

@@ -24,7 +24,7 @@ public class GUI {
         // Create frame
         frame = new JFrame("Algorithm Vizualizer");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Allow application to terminate peacefully when being exited
-
+        
         // Create content pane
         Container contentPane = frame.getContentPane();
         contentPane.setLayout(new BorderLayout(0, 0));
@@ -38,6 +38,9 @@ public class GUI {
 
         JPanel southLayout = makeSouthLayout();
         frame.add(southLayout, BorderLayout.SOUTH);
+
+        JSeparator eastSpearator = new JSeparator(JSeparator.VERTICAL);
+        frame.add(eastSpearator, BorderLayout.EAST);
         
         // Make a menubar for the frame
         JMenuBar menuBar = makeMenuBar();
@@ -87,15 +90,24 @@ public class GUI {
     private JPanel makeWestLayout() {
         // Create a panel to hold the components
         JPanel westPanel = new JPanel();
-        westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.Y_AXIS));
+        westPanel.setLayout(new GridBagLayout());
+
+        // Create GridBagContraints
+        GridBagConstraints c = new GridBagConstraints();
 
         // Make settings panel
         JPanel settingsPanel = makeSettingsSubPanel();
-        westPanel.add(settingsPanel);
+        c.gridy = 0;
+        //c.anchor = GridBagConstraints.NORTH;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        westPanel.add(settingsPanel, c);
 
-        // Make configuration panel
+        // Make configuration panel 
         JPanel configurationPanel = makeConfigurationSubPanel();
-        westPanel.add(configurationPanel);
+        c.gridy = 1;
+        //c.anchor = GridBagConstraints.NORTH;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        westPanel.add(configurationPanel, c);
 
         return westPanel;
     }
