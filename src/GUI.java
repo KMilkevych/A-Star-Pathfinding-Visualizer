@@ -33,8 +33,9 @@ public class GUI {
         JPanel westLayout = makeWestLayout();
         frame.add(westLayout, BorderLayout.WEST);
 
-        JPanel centerLayout = makeCenterLayout();
-        frame.add(centerLayout, BorderLayout.CENTER);
+        //JPanel centerLayout = makeCenterLayout();
+        //frame.add(centerLayout, BorderLayout.CENTER);
+        frame.add(new GraphicsCanvas(), BorderLayout.CENTER); // Fixes Graphics Canvas not being updated correctly when window is resized
 
         JPanel southLayout = makeSouthLayout();
         frame.add(southLayout, BorderLayout.SOUTH);
