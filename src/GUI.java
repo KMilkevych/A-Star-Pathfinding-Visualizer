@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.plaf.InsetsUIResource;
 
 /**
  * GUI Class for managing the Graphical User Interface
@@ -50,6 +51,7 @@ public class GUI {
         // Pack frame and set visible
         frame.pack();
         frame.setVisible(true);
+        frame.setMinimumSize(frame.getPreferredSize());
     }
 
     /**
@@ -95,6 +97,7 @@ public class GUI {
 
         // Create GridBagContraints
         GridBagConstraints c = new GridBagConstraints();
+        c.insets = new InsetsUIResource(10, 10, 10, 10);
 
         // Make settings panel
         JPanel settingsPanel = makeSettingsSubPanel();
@@ -125,6 +128,7 @@ public class GUI {
 
         // Create GridBagConstraits
         GridBagConstraints c = new GridBagConstraints();
+        c.insets = new InsetsUIResource(5, 10, 5, 5);
         
         // Create "Show vizualization:" label
         JLabel showVizualizationLabel = new JLabel("Show vizualization:");
@@ -183,6 +187,7 @@ public class GUI {
 
         // Create GridBagConstraints for layout
         GridBagConstraints c = new GridBagConstraints();
+        c.insets = new InsetsUIResource(5, 5, 5, 5);
 
         // Create Labels for showing info on startpoint, endpoint, shortest path length and computation time
         JLabel startLabel = new JLabel("Startpoint:");
@@ -235,12 +240,17 @@ public class GUI {
 
         // Now create the RUN and CLEAR buttons
         c.gridy = 4;
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 0.5;
+
         JButton runButton = new JButton("Run");
         c.gridx = 0;
+        c.anchor = GridBagConstraints.EAST;
         configurationPanel.add(runButton, c);
         
         JButton clearButton = new JButton("Clear");
         c.gridx = 1;
+        c.anchor = GridBagConstraints.WEST;
         configurationPanel.add(clearButton, c);
 
         return configurationPanel;
