@@ -40,7 +40,8 @@ public class GUI {
         frame.add(southLayout, BorderLayout.SOUTH);
         
         // Make a menubar for the frame
-        makeMenuBar(frame);
+        JMenuBar menuBar = makeMenuBar();
+        frame.setJMenuBar(menuBar);
 
         // Pack frame and set visible
         frame.pack();
@@ -49,12 +50,12 @@ public class GUI {
 
     /**
      * Initializes a menu bar for the specified frame
-     * @param frame - Frame to create menu bar for
+     * @return - the created menubar
      */
-    private void makeMenuBar(JFrame frame) {
+    private JMenuBar makeMenuBar() {
         // Create a menubar and assign it to frame
         JMenuBar menubar = new JMenuBar();
-        frame.setJMenuBar(menubar);
+        //frame.setJMenuBar(menubar);
 
         // Create File Menu
         JMenu fileMenu = new JMenu("File");
@@ -75,6 +76,8 @@ public class GUI {
         JMenuItem showHelpItem = new JMenuItem("Show Help");
         showHelpItem.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Software written by Kostiantyn V. Milkevych.\nSource and Information on GitHub.com/KMilkevych", "Help", JOptionPane.INFORMATION_MESSAGE));
         helpMenu.add(showHelpItem);
+
+        return menubar;
     }
 
     /**
