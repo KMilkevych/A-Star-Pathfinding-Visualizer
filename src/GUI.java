@@ -30,9 +30,14 @@ public class GUI {
         contentPane.setLayout(new BorderLayout(0, 0));
 
         // "Fill out" the Borderlayout with widgets and stuff
-        makeWestLayout(contentPane);
-        makeCenterLayout(contentPane);
-        makeSouthLayout(contentPane);
+        JPanel westLayout = makeWestLayout();
+        frame.add(westLayout, BorderLayout.WEST);
+
+        JPanel centerLayout = makeCenterLayout();
+        frame.add(centerLayout, BorderLayout.CENTER);
+
+        JPanel southLayout = makeSouthLayout();
+        frame.add(southLayout, BorderLayout.SOUTH);
         
         // Make a menubar for the frame
         makeMenuBar(frame);
@@ -74,31 +79,33 @@ public class GUI {
 
     /**
      * Creates the west side of the content in the Borderlayout of the specified content pane
-     * @param contentPane
+     * @return - The created layout packed inside a JPanel
      */
-    private void makeWestLayout(Container contentPane) {
+    private JPanel makeWestLayout() {
         // Create a panel to hold the components
         JPanel westPanel = new JPanel();
         westPanel.setLayout(new BoxLayout(westPanel, BoxLayout.Y_AXIS));
-        contentPane.add(westPanel, BorderLayout.WEST);
 
         // Make settings panel
-        makeSettingsSubPanel(westPanel);
+        JPanel settingsPanel = makeSettingsSubPanel();
+        westPanel.add(settingsPanel);
 
         // Make configuration panel
-        makeConfigurationSubPanel(westPanel);
+        JPanel configurationPanel = makeConfigurationSubPanel();
+        westPanel.add(configurationPanel);
+
+        return westPanel;
     }
 
     /**
      * Creates a Settings panel containing controls for all settings, such as vizualization speed, and vizualization type
-     * @param panel - Panel to add settingspanel to
+     * @return - Created settingspanel
      */
-    private void makeSettingsSubPanel(JPanel panel) {
+    private JPanel makeSettingsSubPanel() {
         // Create a "Settings" panel to hold some components
         JPanel settingsPanel = new JPanel();
         settingsPanel.setLayout(new GridBagLayout());
         settingsPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Settings"));
-        panel.add(settingsPanel);
 
         // Create GridBagConstraits
         GridBagConstraints c = new GridBagConstraints();
@@ -144,18 +151,19 @@ public class GUI {
         c.gridy = 2;
         c.anchor = GridBagConstraints.WEST;
         settingsPanel.add(algorithmComboBox, c);
+
+        return settingsPanel;
     }
 
     /**
      * Creates a Configuration sub panel containing information about current/last simulation, as well as RUN and CLEAR buttons
-     * @param panel - panel to add configuration panel to
+     * @return - created configurationpanel
      */
-    private void makeConfigurationSubPanel(JPanel panel) {
+    private JPanel makeConfigurationSubPanel() {
         // Create configuration panel
         JPanel configurationPanel = new JPanel();
         configurationPanel.setLayout(new GridBagLayout());
         configurationPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Configuration"));
-        panel.add(configurationPanel);
 
         // Create GridBagConstraints for layout
         GridBagConstraints c = new GridBagConstraints();
@@ -218,36 +226,35 @@ public class GUI {
         JButton clearButton = new JButton("Clear");
         c.gridx = 1;
         configurationPanel.add(clearButton, c);
+
+        return configurationPanel;
     }
 
     /**
      * Creates the center part of the content in the Borderlayout of the specified content pane
-     * @param contentPane
+     * @return - The created layout packed indside a JPanel
      */
-    private void makeCenterLayout(Container contentPane) {
+    private JPanel makeCenterLayout() {
         // Create a new panel
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.X_AXIS));
-        contentPane.add(centerPanel, BorderLayout.CENTER);
-
-        // Add separator
-        //centerPanel.add(new JSeparator());
 
         // Create a sample canvas
         GraphicsCanvas canvas = new GraphicsCanvas();
         //canvas.setSize(600, 400);
-        centerPanel.add(canvas); 
+        centerPanel.add(canvas);
+
+        return centerPanel;
     }
 
     /**
      * Creates the south part of the content in the Borderlayout of the specified content pane
-     * @param contentPane
+     * @return - the created layout packed inside a JPanel
      */
-    private void makeSouthLayout(Container contentPane) {
+    private JPanel makeSouthLayout() {
         // Create a new panel
         JPanel southPanel = new JPanel();
         southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
-        contentPane.add(southPanel, BorderLayout.SOUTH);
 
         // Add a separator
         southPanel.add(new JSeparator());
@@ -259,12 +266,13 @@ public class GUI {
 
         // Create text area for output log
         JTextArea outputLog = new JTextArea("Some basic output log", 4, 1);
-        outputLog.setSize(contentPane.getWidth(), 300);
         southSubPanel.add(outputLog);
 
         // Add a scrollbar
         JScrollBar scrollBar = new JScrollBar();
         southSubPanel.add(scrollBar);
+
+        return southPanel;
     }
 
     /**
