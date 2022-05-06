@@ -30,7 +30,11 @@ public class GraphicsCanvas extends Canvas {
     private Graphics bufferGraphics; 
 
     // Define initial cell size
-    private int cellDimension = 8; //px
+    private int cellDimension = 10; //px
+
+    // Define size of board
+    int cellCountX = 60;
+    int cellCountY = 60;
 
     // Define zoom and pan used for viewport/canvas
     private double zoom = 1;
@@ -70,10 +74,6 @@ public class GraphicsCanvas extends Canvas {
      */
     public GraphicsCanvas(JCheckBox showVizualizationCheckbox, JSlider vizualizationSpeedSlider, JComboBox algorithmComboBox, JLabel startPointLabel, JLabel endPointLabel, JLabel shortestPathLabel, JLabel computationalTimeLabel, JTextArea outputLog) {
         super();
-        
-        // Predefine size of board
-        int cellCountX = 100;
-        int cellCountY = 100;
 
         int width = cellCountX * cellDimension;
         int height = cellCountY * cellDimension;
