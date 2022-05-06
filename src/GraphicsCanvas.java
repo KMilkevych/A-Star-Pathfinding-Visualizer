@@ -1,8 +1,23 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.DimensionUIResource;
+
+enum Mode {
+    FREEPLACE(0),
+    STARTPLACE(1),
+    WALLPLACE(2),
+    ENDPLACE(3);
+
+    private final int value;
+    private Mode(int value) {
+        this.value = value;
+    }
+    
+    public int getValue() {
+        return value;
+    }
+}
 
 /**
  * A Graphics Canvas, used as the main viewport in the application.
@@ -18,6 +33,9 @@ public class GraphicsCanvas extends Canvas {
 
     // Declare private field containing board information
     private Board board;
+
+    // Define initial mode
+    private Mode mode = Mode.FREEPLACE;
 
     /**
      * Constructor for GraphicsCanvas class.
@@ -36,16 +54,21 @@ public class GraphicsCanvas extends Canvas {
         // Create a board to contain all user input cells
         board = new Board(cellCountX, cellCountY);
 
-        // Fill in some sample cells
-        board.setTile(Cell.START, 2, 4);
-        board.setTile(Cell.END, 18, 9);
-        board.setTile(Cell.WALL, 10, 10);
-        board.setTile(Cell.WALL, 10, 11);
-        board.setTile(Cell.WALL, 10, 12);
+        // Fill in some sample start and end cells
+        board.setTile(Cell.START, 4, 15);
+        board.setTile(Cell.END, 25, 15);
 
         // Add a mouselistener to listen for different mouse inputs.
         this.addMouseListener(makeMouseInputAdapter());
 
+    }
+
+    /**
+     * Sets the mode for this graphicscanvas
+     * @param mode - Desired mode.
+     */
+    public void setMode(Mode mode) {
+        this.mode = mode;
     }
 
     /**
@@ -164,7 +187,7 @@ public class GraphicsCanvas extends Canvas {
                 int yTile = e.getY() / cellDimension;
 
                 // Set the tile on board using transformed coordinates
-                board.setTile(Cell.WALL, xTile, yTile);
+                board.setTile(Cell.values()[mode.getValue()], xTile, yTile); // This is bad code but enum implementation stops me from doing otherwise
 
                 // Repaint the canvas
                 repaint();

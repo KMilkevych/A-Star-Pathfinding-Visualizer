@@ -2,10 +2,19 @@
  * Enum representing different cell types
  */
 enum Cell {
-    FREE,
-    START,
-    WALL,
-    END
+    FREE(0),
+    START(1),
+    WALL(2),
+    END(3);
+
+    private final int value;
+    private Cell(int value) {
+        this.value = value;
+    }
+    
+    public int getValue() {
+        return value;
+    }
 }
 
 /**
@@ -39,23 +48,19 @@ public class Board {
     }
 
     public void setTile(Cell tileType, int xPos, int yPos) {
-
         // If tile being set is START or END tile, update information automatically, and reset already placed start and end tiles
         if (tileType == Cell.START) {
             if (startset) {
                 setTile(Cell.FREE, start[0], start[1]); // remove already placed start cell
-            } else {
-                startset = true;
-            }
+            } 
             start = new int[]{xPos, yPos}; // place current startcell
-
+            startset = true;
         } else if (tileType == Cell.END) {
             if (endset) {
                 setTile(Cell.FREE, end[0], end[1]); // remove already placed end cell
-            } else {
-                endset = true;
             }
             end = new int[]{xPos, yPos}; // place current endcell
+            endset = true;
         } else {
             // check if tile that is being overwritten is a start or end tile
             if (getTile(xPos, yPos) == Cell.START) {

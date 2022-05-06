@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+
 import javax.swing.*;
 import javax.swing.plaf.InsetsUIResource;
 
@@ -10,6 +12,9 @@ public class GUI {
 
     // Main frame of the application (main window)
     private JFrame frame;
+
+    // Component references that are necessary for communication between components
+    private GraphicsCanvas graphicsCanvas;
 
     /**
      * Constructor for GUI class
@@ -40,8 +45,8 @@ public class GUI {
         Component southLayout = makeSouthLayout();
         frame.add(southLayout, BorderLayout.SOUTH);
 
-        JSeparator eastSpearator = new JSeparator(JSeparator.VERTICAL);
-        frame.add(eastSpearator, BorderLayout.EAST);
+        Component eastLayout = makeEastLayout();
+        frame.add(eastLayout, BorderLayout.EAST);
         
         // Make a menubar for the frame
         JMenuBar menuBar = makeMenuBar();
@@ -262,6 +267,7 @@ public class GUI {
     private Component makeCenterLayout() {
         // Create a sample canvas
         GraphicsCanvas canvas = new GraphicsCanvas();
+        graphicsCanvas = canvas;
 
         return canvas;
     }
@@ -280,6 +286,49 @@ public class GUI {
         JScrollPane logPanel = new JScrollPane(outputLog);
 
         return logPanel;
+    }
+
+    private Component makeEastLayout() {
+
+        // Create a panel for containt components
+        JPanel eastPanel = new JPanel();
+        eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.X_AXIS));
+
+        // Create a vertical separator
+        JSeparator separator = new JSeparator(JSeparator.VERTICAL);
+        eastPanel.add(separator);
+
+        // Create a toolbar
+        JToolBar toolbar = new JToolBar(JToolBar.VERTICAL);
+        eastPanel.add(toolbar);
+
+        // Create four buttons for toolbar
+        JButton whiteButton = new JButton(createImageIcon(Color.LIGHT_GRAY, 32, 32));
+        whiteButton.addActionListener(e -> graphicsCanvas.setMode(Mode.FREEPLACE));
+        toolbar.add(whiteButton);
+
+        JButton redButton = new JButton(createImageIcon(Color.RED, 32, 32));
+        redButton.addActionListener(e -> graphicsCanvas.setMode(Mode.STARTPLACE));
+        toolbar.add(redButton);
+
+        JButton blueButton = new JButton(createImageIcon(Color.BLUE, 32, 32));
+        blueButton.addActionListener(e -> graphicsCanvas.setMode(Mode.ENDPLACE));
+        toolbar.add(blueButton);
+
+        JButton blackButton = new JButton(createImageIcon(Color.BLACK, 32, 32));
+        blackButton.addActionListener(e -> graphicsCanvas.setMode(Mode.WALLPLACE));
+        toolbar.add(blackButton);
+
+        // Return created eastPanel
+        return eastPanel;
+    }
+
+    private ImageIcon createImageIcon(Color color, int width, int height) {
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics g = img.createGraphics();
+        g.setColor(color);
+        g.fillRect(0, 0, width, height);
+        return new ImageIcon(img);
     }
 
     /**
