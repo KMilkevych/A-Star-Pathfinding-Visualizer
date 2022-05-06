@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.event.MouseInputAdapter;
+import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.plaf.DimensionUIResource;
 
 enum Mode {
@@ -31,16 +32,44 @@ public class GraphicsCanvas extends Canvas {
     // Define initial cell size
     private int cellDimension = 8; //px
 
+    // Define zoom and pan used for viewport/canvas
+    private double zoom = 1.0f;
+    private int panX = 0;
+    private int panY = 0;
+
+    private int lastMouseX = 0;
+    private int lastMouseY = 0;
+
     // Declare private field containing board information
     private Board board;
 
     // Define initial mode
     private Mode mode = Mode.FREEPLACE;
 
+    // Declare references to other UI components
+    private JCheckBox showVizualizationCheckbox;
+    private JSlider vizualizationSpeedSlider;
+    private JComboBox algorithmComboBox;
+
+    private JLabel startPointLabel;
+    private JLabel endPointLabel;
+    private JLabel shortestPathLabel;
+    private JLabel computationalTimeLabel;
+
+    private JTextArea outputLog;
+
     /**
-     * Constructor for GraphicsCanvas class.
+     * Constructor for GraphicsCanvas class. UI references to certain components are required.
+     * @param showVizualizationCheckbox
+     * @param vizualizationSpeedSlider
+     * @param algorithmComboBox
+     * @param startPointLabel
+     * @param endPointLabel
+     * @param shortestPathLabel
+     * @param computationalTimeLabel
+     * @param outputLog
      */
-    public GraphicsCanvas() {
+    public GraphicsCanvas(JCheckBox showVizualizationCheckbox, JSlider vizualizationSpeedSlider, JComboBox algorithmComboBox, JLabel startPointLabel, JLabel endPointLabel, JLabel shortestPathLabel, JLabel computationalTimeLabel, JTextArea outputLog) {
         super();
         
         // Predefine size of board
@@ -60,7 +89,18 @@ public class GraphicsCanvas extends Canvas {
 
         // Add a mouselistener to listen for different mouse inputs.
         this.addMouseListener(makeMouseInputAdapter());
+        this.addMouseMotionListener(makeMouseMotionListener());
+        this.addMouseWheelListener(makeMouseWheelListener());
 
+        // Set references to ui objects
+        this.showVizualizationCheckbox = showVizualizationCheckbox;
+        this.vizualizationSpeedSlider = vizualizationSpeedSlider;
+        this.algorithmComboBox = algorithmComboBox;
+        this.startPointLabel = startPointLabel;
+        this.endPointLabel = endPointLabel;
+        this.shortestPathLabel = shortestPathLabel;
+        this.computationalTimeLabel = computationalTimeLabel;
+        this.outputLog = outputLog;
     }
 
     /**
@@ -186,6 +226,15 @@ public class GraphicsCanvas extends Canvas {
         }
     }
 
+    /**
+     * Writex specified text to outputLog. Automatically moves the caret position down to bottom.
+     * @param text - text to write
+     */
+    private void writeLog(String text) {
+        outputLog.append(text);
+        outputLog.setCaretPosition(outputLog.getDocument().getLength());
+    }
+
     private MouseInputAdapter makeMouseInputAdapter() {
         return new MouseInputAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -200,6 +249,33 @@ public class GraphicsCanvas extends Canvas {
                 // Repaint the canvas
                 repaint();
             }
+        };
+    }
+
+    private MouseWheelListener makeMouseWheelListener() {
+        return new MouseWheelListener() {
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                // Calculate new zoom
+                double scroll = e.getWheelRotation()/2.0;
+                zoom = zoom / (1 + scroll/100.0);
+                writeLog("Zoom: " + zoom + "\n");
+
+                // Calculate new pan
+                panX = lastMouseX;
+                panY = lastMouseY;
+                writeLog("Pan: " + panX + ", " + panY + "\n");
+            }
+        };
+    }
+
+    private MouseMotionListener makeMouseMotionListener() {
+        return new MouseMotionListener() {
+            public void mouseMoved(MouseEvent e) {
+                // Save last known (these) mouse coordinates
+                lastMouseX = e.getX();
+                lastMouseY = e.getY();
+            }
+            public void mouseDragged(MouseEvent e) {}
         };
     }
 

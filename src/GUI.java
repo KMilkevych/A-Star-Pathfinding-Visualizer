@@ -1,9 +1,11 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.plaf.InsetsUIResource;
+import javax.swing.text.*;
 /**
  * GUI Class for managing the Graphical User Interface
  */
@@ -49,11 +51,11 @@ public class GUI {
         Component westLayout = makeWestLayout();
         frame.add(westLayout, BorderLayout.WEST);
 
-        Component centerLayout = makeCenterLayout();
-        frame.add(centerLayout, BorderLayout.CENTER);
-
         Component southLayout = makeSouthLayout();
         frame.add(southLayout, BorderLayout.SOUTH);
+
+        Component centerLayout = makeCenterLayout();
+        frame.add(centerLayout, BorderLayout.CENTER);
 
         Component eastLayout = makeEastLayout();
         frame.add(eastLayout, BorderLayout.EAST);
@@ -284,7 +286,7 @@ public class GUI {
      */
     private Component makeCenterLayout() {
         // Create a sample canvas
-        GraphicsCanvas canvas = new GraphicsCanvas();
+        GraphicsCanvas canvas = new GraphicsCanvas(showVizualizationCheckbox, vizualizationSpeedSlider, algorithmComboBox, startPointLabel, endPointLabel, shortestPathLabel, computationalTimeLabel, outputLog);
         this.graphicsCanvas = canvas;
 
         return canvas;
@@ -297,8 +299,13 @@ public class GUI {
     private Component makeSouthLayout() {
         
         // Create text area for output log
-        JTextArea outputLog = new JTextArea("Some basic output log", 6, 1);
+        JTextArea outputLog = new JTextArea("Some basic output log\n", 6, 1);
+        outputLog.setEditable(false);
         outputLog.setLineWrap(true);
+        /*
+        DefaultCaret caret = (DefaultCaret)outputLog.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        */
         this.outputLog = outputLog;
 
         // Create a JScrollPane to house outputLog
