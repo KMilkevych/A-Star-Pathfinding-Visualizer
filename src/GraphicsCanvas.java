@@ -72,6 +72,14 @@ public class GraphicsCanvas extends Canvas {
     }
 
     /**
+     * Resets the board and repaints canvas.
+     */
+    public void reset() {
+        board.clearBoard();
+        repaint();
+    }
+
+    /**
      * Update method used for creating and updating the double buffer, as well as repainting the canvas using double-buffer.
      * This method is called through regular update() calls by the ui, as well as through paint(), to trigger proper repaint when calling repaint().
      * @param g - The graphics object used to draw to the actual canvas

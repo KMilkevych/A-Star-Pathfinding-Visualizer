@@ -47,6 +47,12 @@ public class Board {
         }
     }
 
+    public void clearBoard() {
+        fillBoard();
+        startset = false;
+        endset = false;
+    }
+
     public void setTile(Cell tileType, int xPos, int yPos) {
         // If tile being set is START or END tile, update information automatically, and reset already placed start and end tiles
         if (tileType == Cell.START) {

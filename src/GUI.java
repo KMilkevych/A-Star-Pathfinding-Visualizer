@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.*;
 import javax.swing.plaf.InsetsUIResource;
-
 /**
  * GUI Class for managing the Graphical User Interface
  */
@@ -15,6 +14,17 @@ public class GUI {
 
     // Component references that are necessary for communication between components
     private GraphicsCanvas graphicsCanvas;
+
+    private JCheckBox showVizualizationCheckbox;
+    private JSlider vizualizationSpeedSlider;
+    private JComboBox algorithmComboBox;
+
+    private JLabel startPointLabel;
+    private JLabel endPointLabel;
+    private JLabel shortestPathLabel;
+    private JLabel computationalTimeLabel;
+
+    private JTextArea outputLog;
 
     /**
      * Constructor for GUI class
@@ -147,6 +157,7 @@ public class GUI {
         c.gridy = 0;
         c.anchor = GridBagConstraints.WEST;
         settingsPanel.add(showVizualizationCB, c);
+        this.showVizualizationCheckbox = showVizualizationCB;
 
         // Create "Vizualization speed:" label
         JLabel vizualizationSpeedLabel = new JLabel("Vizualization speed:");
@@ -161,6 +172,7 @@ public class GUI {
         c.gridy = 1;
         c.anchor = GridBagConstraints.WEST;
         settingsPanel.add(vizualizationSpeedSlider, c);
+        this.vizualizationSpeedSlider = vizualizationSpeedSlider;
 
         // Create "Pathfinding algorithm" label
         JLabel pathfindingAlgorithmLabel = new JLabel("Algorithm:");
@@ -175,6 +187,7 @@ public class GUI {
         c.gridy = 2;
         c.anchor = GridBagConstraints.WEST;
         settingsPanel.add(algorithmComboBox, c);
+        this.algorithmComboBox = algorithmComboBox;
 
         return settingsPanel;
     }
@@ -197,18 +210,22 @@ public class GUI {
         JLabel startLabel = new JLabel("Startpoint:");
 
         JLabel startValLabel = new JLabel("(X, X)");
+        this.startPointLabel = startValLabel;
         
         JLabel endLabel = new JLabel("Endpoint:");
 
         JLabel endValLabel = new JLabel("(X, X)");
+        this.endPointLabel = endValLabel;
 
         JLabel shortestPathLabel = new JLabel("Shortest path:");
 
         JLabel shortestPathValLabel = new JLabel("N/A");
+        this.shortestPathLabel = shortestPathValLabel;
 
         JLabel computationTimeLabel = new JLabel("Time:");
 
         JLabel computationTimeValLabel = new JLabel("Xs");
+        this.computationalTimeLabel = computationTimeLabel;
 
         // Add left-side labels to layout
         c.gridx = 0;
@@ -255,6 +272,7 @@ public class GUI {
         JButton clearButton = new JButton("Clear");
         c.gridx = 1;
         c.anchor = GridBagConstraints.WEST;
+        clearButton.addActionListener(e -> graphicsCanvas.reset());
         configurationPanel.add(clearButton, c);
 
         return configurationPanel;
@@ -267,7 +285,7 @@ public class GUI {
     private Component makeCenterLayout() {
         // Create a sample canvas
         GraphicsCanvas canvas = new GraphicsCanvas();
-        graphicsCanvas = canvas;
+        this.graphicsCanvas = canvas;
 
         return canvas;
     }
@@ -281,6 +299,7 @@ public class GUI {
         // Create text area for output log
         JTextArea outputLog = new JTextArea("Some basic output log", 6, 1);
         outputLog.setLineWrap(true);
+        this.outputLog = outputLog;
 
         // Create a JScrollPane to house outputLog
         JScrollPane logPanel = new JScrollPane(outputLog);
@@ -305,18 +324,22 @@ public class GUI {
         // Create four buttons for toolbar
         JButton whiteButton = new JButton(createImageIcon(Color.LIGHT_GRAY, 32, 32));
         whiteButton.addActionListener(e -> graphicsCanvas.setMode(Mode.FREEPLACE));
+        whiteButton.setToolTipText("Erase Node");
         toolbar.add(whiteButton);
 
         JButton redButton = new JButton(createImageIcon(Color.RED, 32, 32));
         redButton.addActionListener(e -> graphicsCanvas.setMode(Mode.STARTPLACE));
+        redButton.setToolTipText("Start Node");
         toolbar.add(redButton);
 
         JButton blueButton = new JButton(createImageIcon(Color.BLUE, 32, 32));
         blueButton.addActionListener(e -> graphicsCanvas.setMode(Mode.ENDPLACE));
+        blueButton.setToolTipText("End Node");
         toolbar.add(blueButton);
 
         JButton blackButton = new JButton(createImageIcon(Color.BLACK, 32, 32));
         blackButton.addActionListener(e -> graphicsCanvas.setMode(Mode.WALLPLACE));
+        blackButton.setToolTipText("Wall Node");
         toolbar.add(blackButton);
 
         // Return created eastPanel
