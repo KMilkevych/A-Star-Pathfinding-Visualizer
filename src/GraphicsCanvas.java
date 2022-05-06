@@ -174,11 +174,14 @@ public class GraphicsCanvas extends Canvas {
      */
     private void paintGrid(Graphics g) {
 
+        // Calculate lengths and clean offsets
         double[] sc = new double[]{cellDimension * board.getXSize() * zoom,cellDimension * board.getYSize() * zoom};
         double[] offsets = new double[]{(-panX * zoom) % sc[0], (-panY * zoom) % sc[1]};
 
+        // Set grid color to black
         g.setColor(Color.BLACK);
-
+        
+        // Draw grid
         for (int x = 0; x < board.getXSize() + 1; x++) {
             double p = x * cellDimension * zoom;
             g.drawLine((int)(p + offsets[0]), (int)(0 + offsets[1]), (int)(p + offsets[0]), (int)(sc[1] + offsets[1]));
@@ -188,6 +191,7 @@ public class GraphicsCanvas extends Canvas {
             double p = y * cellDimension * zoom;
             g.drawLine((int)(0 + offsets[0]), (int)(p + offsets[1]), (int)(sc[0] + offsets[0]), (int)(p + offsets[1]));
         }
+
     }
 
     /**
@@ -230,24 +234,24 @@ public class GraphicsCanvas extends Canvas {
 
     private void drawTile(Graphics g, Color c, int xPos, int yPos, int size) {
         // Apply zoom before drawing
-        int[] pos = worldToScreen(xPos, yPos);
-        int scale = (int)(size*zoom);
+        double[] pos = worldToScreen(xPos, yPos);
+        int scale = (int)Math.ceil(size*zoom);
 
         // Draw tile
         g.setColor(c);
-        g.fillRect(pos[0], pos[1], scale, scale);
+        g.fillRect((int) pos[0], (int) pos[1], scale, scale);
     }
 
-    private int[] worldToScreen(int x, int y) {
-        int newX = (int)((x - panX)*zoom);
-        int newY = (int)((y - panY)*zoom);
-        return new int[]{newX, newY};
+    private double[] worldToScreen(int x, int y) {
+        double newX = ((x - panX)*zoom);
+        double newY = ((y - panY)*zoom);
+        return new double[]{newX, newY};
     }
 
-    private int[] screenToWorld(int x, int y) {
-        int newX = (int)(x/zoom + panX);
-        int newY = (int)(y/zoom + panY);
-        return new int[]{newX, newY};
+    private double[] screenToWorld(int x, int y) {
+        double newX = (x/zoom + panX);
+        double newY = (y/zoom + panY);
+        return new double[]{newX, newY};
     }
 
     /**
@@ -265,9 +269,9 @@ public class GraphicsCanvas extends Canvas {
 
                 if (e.getButton() == 1) { // if left-click
                     // Transform pressed coordinates into proper tile coordinates in board
-                    int[] worldPos = screenToWorld(e.getX(), e.getY());
-                    int xTile = worldPos[0] / cellDimension;
-                    int yTile = worldPos[1] / cellDimension;
+                    double[] worldPos = screenToWorld(e.getX(), e.getY());
+                    int xTile = (int) (worldPos[0] / cellDimension);
+                    int yTile = (int) (worldPos[1] / cellDimension);
 
                     // Set the tile on board using transformed coordinates
                     board.setTile(Cell.values()[mode.getValue()], xTile, yTile); // This is bad code but enum implementation stops me from doing otherwise
@@ -289,7 +293,7 @@ public class GraphicsCanvas extends Canvas {
         return new MouseWheelListener() {
             public void mouseWheelMoved(MouseWheelEvent e) {
                 // Capture mouse position in world space before zoom
-                int[] beforeZoomMPos = screenToWorld(e.getX(), e.getY());
+                double[] beforeZoomMPos = screenToWorld(e.getX(), e.getY());
 
                 // Calculate new zoom
                 double scroll = e.getWheelRotation();
@@ -297,7 +301,7 @@ public class GraphicsCanvas extends Canvas {
                 writeLog("Zoom: " + zoom + "\n");
 
                 // Capture mouse position in world space after zoom
-                int[] afterZoomMPos = screenToWorld(e.getX(), e.getY());
+                double[] afterZoomMPos = screenToWorld(e.getX(), e.getY());
 
                 // Calculate new pan
                 panX = panX + (beforeZoomMPos[0] - afterZoomMPos[0]);
