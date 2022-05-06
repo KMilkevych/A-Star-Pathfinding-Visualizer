@@ -29,7 +29,7 @@ public class GraphicsCanvas extends Canvas {
     private Graphics bufferGraphics; 
 
     // Define initial cell size
-    private int cellDimension = 20; //px
+    private int cellDimension = 8; //px
 
     // Declare private field containing board information
     private Board board;
@@ -44,8 +44,8 @@ public class GraphicsCanvas extends Canvas {
         super();
         
         // Predefine size of board
-        int cellCountX = 30;
-        int cellCountY = 30;
+        int cellCountX = 100;
+        int cellCountY = 100;
 
         Dimension preferredDimension = new DimensionUIResource(cellCountX * cellDimension, cellCountY * cellDimension); // old: 600x400
         setBackground(Color.LIGHT_GRAY);
