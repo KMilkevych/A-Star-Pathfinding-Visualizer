@@ -1,14 +1,22 @@
 import java.awt.*;
+import java.awt.event.*;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.DimensionUIResource;
 
 /**
  * A Graphics Canvas, used as the main viewport in the application.
  */
 public class GraphicsCanvas extends Canvas {
-    
+
+    // Decleare buffer and buffergraphics
+    private Image buffer;
+    private Graphics bufferGraphics; 
+
     // Define initial cell size
     private int cellDimension = 20; //px
 
+    // Declare private field containing board information
     private Board board;
 
     /**
@@ -34,23 +42,55 @@ public class GraphicsCanvas extends Canvas {
         board.setTile(Cell.WALL, 10, 10);
         board.setTile(Cell.WALL, 10, 11);
         board.setTile(Cell.WALL, 10, 12);
+
+        // Add a mouselistener to listen for different mouse inputs.
+        this.addMouseListener(makeMouseInputAdapter());
+
     }
 
     /**
-     * Paints content to the canvas using specified graphics.
+     * Update method used for creating and updating the double buffer, as well as repainting the canvas using double-buffer.
+     * This method is called through regular update() calls by the ui, as well as through paint(), to trigger proper repaint when calling repaint().
+     * @param g - The graphics object used to draw to the actual canvas
      */
-    public void paint(Graphics g) {
-
+    public void update(Graphics g) {
         // Update grid dimensions based on possible resize
         cellDimension = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/board.getYSize());
 
+        // Initialize buffer
+        buffer = createImage(this.getSize().width, this.getSize().height);
+        bufferGraphics = buffer.getGraphics();
+
+        // Clear screen in background
+        bufferGraphics.setColor(getBackground());
+        bufferGraphics.fillRect(0, 0, this.getSize().width, this.getSize().height);
+
+        // Paint the necessarry content to the buffer
+        paintContent(bufferGraphics);
+
+        // Draw buffer to screen
+        g.drawImage(buffer, 0, 0, this);
+    }
+
+    /**
+     * Calls update which utilizes double-buffering.
+     */
+    public void paint(Graphics g) {
+        update(g);
+    }
+
+    /**
+     * Paints all content using specified Graphics object.
+     * @param g - Graphics object used for painting all content.
+     */
+    private void paintContent(Graphics g) {
         // Paint the board
         paintBoard(g);
 
         // Paint the grid
         paintGrid(g);
-
     }
+
 
     /**
      * Draws the grid to the screen.
@@ -113,6 +153,23 @@ public class GraphicsCanvas extends Canvas {
                 }
             }
         }
+    }
+
+    private MouseInputAdapter makeMouseInputAdapter() {
+        return new MouseInputAdapter() {
+            public void mousePressed(MouseEvent e) {
+
+                // Transform pressed coordinates into proper tile coordinates in board
+                int xTile = e.getX() / cellDimension;
+                int yTile = e.getY() / cellDimension;
+
+                // Set the tile on board using transformed coordinates
+                board.setTile(Cell.WALL, xTile, yTile);
+
+                // Repaint the canvas
+                repaint();
+            }
+        };
     }
 
 }

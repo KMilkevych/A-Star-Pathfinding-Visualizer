@@ -56,6 +56,13 @@ public class Board {
                 endset = true;
             }
             end = new int[]{xPos, yPos}; // place current endcell
+        } else {
+            // check if tile that is being overwritten is a start or end tile
+            if (getTile(xPos, yPos) == Cell.START) {
+                startset = false;
+            } else if (getTile(xPos, yPos) == Cell.END) {
+                endset = false;
+            } 
         }
 
         board[yPos][xPos] = tileType; // place cell to actual board
