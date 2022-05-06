@@ -31,14 +31,13 @@ public class GUI {
         contentPane.setLayout(new BorderLayout(0, 0));
 
         // "Fill out" the Borderlayout with widgets and stuff
-        JPanel westLayout = makeWestLayout();
+        Component westLayout = makeWestLayout();
         frame.add(westLayout, BorderLayout.WEST);
 
-        //JPanel centerLayout = makeCenterLayout();
-        //frame.add(centerLayout, BorderLayout.CENTER);
-        frame.add(new GraphicsCanvas(), BorderLayout.CENTER); // Fixes Graphics Canvas not being updated correctly when window is resized
+        Component centerLayout = makeCenterLayout();
+        frame.add(centerLayout, BorderLayout.CENTER);
 
-        JPanel southLayout = makeSouthLayout();
+        Component southLayout = makeSouthLayout();
         frame.add(southLayout, BorderLayout.SOUTH);
 
         JSeparator eastSpearator = new JSeparator(JSeparator.VERTICAL);
@@ -88,9 +87,9 @@ public class GUI {
 
     /**
      * Creates the west side of the content in the Borderlayout of the specified content pane
-     * @return - The created layout packed inside a JPanel
+     * @return - The created layout packed inside a Component
      */
-    private JPanel makeWestLayout() {
+    private Component makeWestLayout() {
         // Create a panel to hold the components
         JPanel westPanel = new JPanel();
         westPanel.setLayout(new GridBagLayout());
@@ -100,14 +99,14 @@ public class GUI {
         c.insets = new InsetsUIResource(10, 10, 10, 10);
 
         // Make settings panel
-        JPanel settingsPanel = makeSettingsSubPanel();
+        Component settingsPanel = makeSettingsSubPanel();
         c.gridy = 0;
         //c.anchor = GridBagConstraints.NORTH;
         c.fill = GridBagConstraints.HORIZONTAL;
         westPanel.add(settingsPanel, c);
 
         // Make configuration panel 
-        JPanel configurationPanel = makeConfigurationSubPanel();
+        Component configurationPanel = makeConfigurationSubPanel();
         c.gridy = 1;
         //c.anchor = GridBagConstraints.NORTH;
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -120,7 +119,7 @@ public class GUI {
      * Creates a Settings panel containing controls for all settings, such as vizualization speed, and vizualization type
      * @return - Created settingspanel
      */
-    private JPanel makeSettingsSubPanel() {
+    private Component makeSettingsSubPanel() {
         // Create a "Settings" panel to hold some components
         JPanel settingsPanel = new JPanel();
         settingsPanel.setLayout(new GridBagLayout());
@@ -179,7 +178,7 @@ public class GUI {
      * Creates a Configuration sub panel containing information about current/last simulation, as well as RUN and CLEAR buttons
      * @return - created configurationpanel
      */
-    private JPanel makeConfigurationSubPanel() {
+    private Component makeConfigurationSubPanel() {
         // Create configuration panel
         JPanel configurationPanel = new JPanel();
         configurationPanel.setLayout(new GridBagLayout());
@@ -258,51 +257,33 @@ public class GUI {
 
     /**
      * Creates the center part of the content in the Borderlayout of the specified content pane
-     * @return - The created layout packed indside a JPanel
+     * @return - The created layout packed indside a Component
      */
-    private JPanel makeCenterLayout() {
-        // Create a new panel
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.X_AXIS));
-
+    private Component makeCenterLayout() {
         // Create a sample canvas
         GraphicsCanvas canvas = new GraphicsCanvas();
-        //canvas.setSize(600, 400);
-        centerPanel.add(canvas);
 
-        return centerPanel;
+        return canvas;
     }
 
     /**
      * Creates the south part of the content in the Borderlayout of the specified content pane
-     * @return - the created layout packed inside a JPanel
+     * @return - the created layout packed inside a Component
      */
-    private JPanel makeSouthLayout() {
-        // Create a new panel
-        JPanel southPanel = new JPanel();
-        southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
-
-        // Add a separator
-        southPanel.add(new JSeparator());
-
-        // Create a sub-panel
-        JPanel southSubPanel = new JPanel();
-        southSubPanel.setLayout(new BoxLayout(southSubPanel, BoxLayout.X_AXIS));
-        southPanel.add(southSubPanel);
-
+    private Component makeSouthLayout() {
+        
         // Create text area for output log
-        JTextArea outputLog = new JTextArea("Some basic output log", 4, 1);
-        southSubPanel.add(outputLog);
+        JTextArea outputLog = new JTextArea("Some basic output log", 6, 1);
+        outputLog.setLineWrap(true);
 
-        // Add a scrollbar
-        JScrollBar scrollBar = new JScrollBar();
-        southSubPanel.add(scrollBar);
+        // Create a JScrollPane to house outputLog
+        JScrollPane logPanel = new JScrollPane(outputLog);
 
-        return southPanel;
+        return logPanel;
     }
 
     /**
-     * Calmly terminates the application
+     * Calmly terminates the application 
      */
     private void quit() {
         System.exit(0);
