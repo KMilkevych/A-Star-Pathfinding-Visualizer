@@ -105,7 +105,7 @@ public class Board {
         return endset ? new Integer[] {end[0], end[1]} : new Integer[] {null, null};
     }
 
-    private Integer[][] getAdjacent(Integer xPos, Integer yPos) {
+    private int[][] getAdjacent(int xPos, int yPos) {
         // NO DIAGONALS FOR NOW
         /*
         int[][] adj = new int[8][2];
@@ -122,11 +122,11 @@ public class Board {
         */
 
         
-        Integer[][] adj = new Integer[4][2];
-        adj[0] = new Integer[] {xPos - 1, yPos};
-        adj[1] = new Integer[] {xPos + 1, yPos};
-        adj[2] = new Integer[] {xPos, yPos - 1};
-        adj[3] = new Integer[] {xPos, yPos + 1};
+        int[][] adj = new int[4][2];
+        adj[0] = new int[] {xPos - 1, yPos};
+        adj[1] = new int[] {xPos + 1, yPos};
+        adj[2] = new int[] {xPos, yPos - 1};
+        adj[3] = new int[] {xPos, yPos + 1};
 
         return adj;
     }
@@ -135,7 +135,7 @@ public class Board {
      * Parses the board and computes weighted bidirectional graph.
      * @return - weighted bidirectional graph in adjacency matrix representation.
      */
-    public Integer[][][][] getGraph() {
+    public int[][][][] getGraph() {
         
         /**
          * Edges are stored in adjacency matrix representation on the form:
@@ -147,17 +147,17 @@ public class Board {
          */
 
         // Create adjacency matrix
-        Integer[][][][] adj = new Integer[xSize][ySize][4][3];
+        int[][][][] adj = new int[xSize][ySize][4][3];
         
         // Iterate for each cell
         for (int y = 0; y < ySize; y++) {
             for (int x = 0; x < xSize; x++) {
 
                 // Get a reference to the list of outgoing edges from this node
-                Integer[][] edges = adj[x][y];
+                int[][] edges = adj[x][y];
 
                 // Grab adjacent nodes
-                Integer[][] adjacent = getAdjacent(x, y);
+                int[][] adjacent = getAdjacent(x, y);
 
                 // Fetch if current cell isnt wall
                 boolean isWall = getTile(x, y) == Cell.WALL;
@@ -169,12 +169,12 @@ public class Board {
                     int ay = adjacent[i][1];
 
                     // Put no connection in as default.
-                    edges[i] = new Integer[] {ax, ay, 0};
+                    edges[i] = new int[] {ax, ay, 0};
 
                     // If current cell isnt wall and adjacent cell isnt wall, and in boundaries
                     if (!isWall && (0 <= ax && ax < xSize) && (0 <= ay && ay < ySize) && !(getTile(ax, ay) == Cell.WALL)) {
                         // Put in edge with weight 1
-                        edges[i] = new Integer[] {ax, ay, 1};
+                        edges[i] = new int[] {ax, ay, 1};
                     }
                 }
             }

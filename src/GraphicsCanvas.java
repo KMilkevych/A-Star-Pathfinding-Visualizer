@@ -6,6 +6,8 @@ import javax.swing.plaf.DimensionUIResource;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 enum Mode {
     FREEPLACE(0),
@@ -57,10 +59,10 @@ public class GraphicsCanvas extends Canvas {
     private Mode mode = Mode.FREEPLACE;
 
     // Stream for collecting calculation results
-    LinkedList<Integer[][][]> computationList = new LinkedList<Integer[][][]>();
+    LinkedList<ArrayList<CopyOnWriteArrayList<int[]>>> computationList = new LinkedList<ArrayList<CopyOnWriteArrayList<int[]>>>();
 
     // Current computationResult
-    Integer[][][] currentComputation = computationList.pollFirst();
+    ArrayList<CopyOnWriteArrayList<int[]>> currentComputation = computationList.pollFirst();
 
     // Timer for drawing steps
     Timer vizualizationTimer = new Timer(1, null);
@@ -167,7 +169,7 @@ public class GraphicsCanvas extends Canvas {
      */
     public void run() {
         // Parse graph
-        Integer[][][][] adj = board.getGraph();
+        int[][][][] adj = board.getGraph();
 
         // Empty calculation list for collecting results
         computationList = new LinkedList<>();
@@ -176,8 +178,12 @@ public class GraphicsCanvas extends Canvas {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                // Get start and end nodes
+                Integer[] start = board.getStart();
+                Integer[] end = board.getEnd();
+
                 // Run BFS
-                Integer[][][] results = Algorithm.BFS(adj, board.getStart(), board.getEnd(), computationList);
+                int[][][] results = Algorithm.BFS(adj, new int[]{start[0], start[1]}, new int[]{end[0], end[1]}, computationList);
 
                 // Update shortest path label
                 shortestPathLabel.setText("" + results[board.getEnd()[0]][board.getEnd()[1]][1]);
@@ -192,7 +198,7 @@ public class GraphicsCanvas extends Canvas {
         vizualizationTimer = new Timer(2000/vizualizationSpeedSlider.getValue(), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Integer[][][] computationInstance = computationList.pollFirst();
+                ArrayList<CopyOnWriteArrayList<int[]>> computationInstance = computationList.pollFirst();
 
                 if (computationInstance != null) {
                     currentComputation = computationInstance;
@@ -324,23 +330,18 @@ public class GraphicsCanvas extends Canvas {
     private void paintComputation(Graphics g) {
 
         if (currentComputation != null) {
-            for (int x = 0; x < currentComputation.length; x++) {
 
-                for (int y = 0; y < currentComputation[0].length; y++) {
-    
-                    Integer[] nodeInfo = currentComputation[x][y];
-                    Color drawColor = Color.PINK; // Error color
-    
-                    if (nodeInfo[0] == 1) {
-                        drawColor = Color.GREEN;
-                    } else if (nodeInfo[0] == 2) {
-                        drawColor = Color.YELLOW;
-                    } else {continue;}
-    
-                    drawTile(g, drawColor, x*cellDimension, y*cellDimension, cellDimension);
-                }
+            CopyOnWriteArrayList<int[]> graynodes = currentComputation.get(0);
+            CopyOnWriteArrayList<int[]> blacknodes = currentComputation.get(1);
 
+            for (int[] n : graynodes) {
+                drawTile(g, Color.GREEN, n[0]*cellDimension, n[1]*cellDimension, cellDimension);
             }
+
+            for (int[] n : blacknodes) {
+                drawTile(g, Color.YELLOW, n[0]*cellDimension, n[1]*cellDimension, cellDimension);
+            }
+
         }
         
     }

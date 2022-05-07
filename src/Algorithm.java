@@ -1,6 +1,8 @@
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Algorithm {
     
@@ -17,60 +19,81 @@ public class Algorithm {
      * @param end
      * @return
      */
-    public static Integer[][][] BFS(Integer[][][][] graph, Integer[] start, Integer[] end, LinkedList<Integer[][][]> computationList) {
+    public static int[][][] BFS(int[][][][] graph, int[] start, int[] end, LinkedList<ArrayList<CopyOnWriteArrayList<int[]>>> blackgrayNodes) {
         // Define matrix to store node information
-        Integer[][][] nodes = new Integer[graph.length][graph[0].length][4];
+        int[][][] nodes = new int[graph.length][graph[0].length][4];
         //                                                               ^ {color, depth, parentX, parentY}
         //                                                                  colors: 0=white, 1=gray, 2=black
 
         // Fill out matrix with empty values
         for (int i = 0; i < nodes.length; i++) {
             for (int j = 0; j < nodes[0].length; j++) {
-                nodes[i][j] = new Integer[]{0, Integer.MAX_VALUE, null, null}; // Standard values for all nodes.
+                nodes[i][j] = new int[]{0, Integer.MAX_VALUE, -1, -1}; // Standard values for all nodes.
             }
         }
 
         // Define queue to hold currently reviewed nodes
-        ArrayDeque<Integer[]> q = new ArrayDeque<Integer[]>();
+        ArrayDeque<int[]> q = new ArrayDeque<int[]>();
 
         // Enqueue start node
-        nodes[start[0]][start[1]] = new Integer[]{1, 0, null, null};
+        nodes[start[0]][start[1]] = new int[]{1, 0, -1, -1};
         q.addLast(start);
+
+        // Define ArrayList to hold black nodes
+        ArrayList<int[]> blacknodes = new ArrayList<>();
+
+        // Define ArrayList to hold gray nodes
+        ArrayList<int[]> graynodes = new ArrayList<>();
 
         // While queue not empty
         while (q.size() > 0) {
+
             // Remove first node in queue
-            Integer[] cnode = q.removeFirst();
+            int[] cnode = q.removeFirst();
 
             // Fetch adjacent nodes using adjacency map
-            Integer[][] adjacent = graph[cnode[0]][cnode[1]];
+            int[][] adjacent = graph[cnode[0]][cnode[1]];
 
             // Iterate over each adjacent node (there exists an edge)
-            for (Integer[] n : adjacent) {
+            for (int[] n : adjacent) {
 
                 // Only consider node, if there is an edge to it, and its color is white.
                 if ((n[2] != 0) && (nodes[n[0]][n[1]][0] == 0)) {
                     // Enqueue new node
-                    q.addLast(n);
+                    q.addLast(new int[]{n[0], n[1]});
 
                     // Set color, depth and parent
-                    nodes[n[0]][n[1]] = new Integer[] {1, nodes[cnode[0]][cnode[1]][1] + 1, cnode[0], cnode[1]}; // Set color to gray
+                    nodes[n[0]][n[1]] = new int[] {1, nodes[cnode[0]][cnode[1]][1] + 1, cnode[0], cnode[1]}; // Set color to gray
+
+                    // Add to gray nodes
+                    graynodes.add(new int[]{n[0], n[1]});
                 }  
             }
 
             // Set color to black
             nodes[cnode[0]][cnode[1]][0] = 2;
 
-            // Clone current instance of nodes
-            Integer[][][] nodescopy = new Integer[nodes.length][nodes[0].length][nodes[0][0].length];
-            for (int i = 0; i < nodescopy.length; i++) {
-                for (int j = 0; j < nodescopy[0].length; j++) {
-                    nodescopy[i][j] = new Integer[]{nodes[i][j][0], nodes[i][j][1], nodes[i][j][2]};
-                }
+            // Remove from gray nodes and add to black nodes
+            graynodes.remove(cnode); // Might cause problems, because references
+            blacknodes.add(cnode);
+
+            // Copy arraylists
+            CopyOnWriteArrayList<int[]> gnc = new CopyOnWriteArrayList<>();
+            for (int[] n : graynodes) {
+                gnc.add(n.clone());
             }
 
-            // Add current instance of nodes to end of linked list
-            computationList.addLast(nodescopy);
+            // Copy arraylists
+            CopyOnWriteArrayList<int[]> bnc = new CopyOnWriteArrayList<>();
+            for (int[] n : blacknodes) {
+                bnc.add(n.clone());
+            }
+
+            // Add to linkedlist
+            ArrayList<CopyOnWriteArrayList<int[]>> bgn = new ArrayList<>();
+            bgn.add(gnc);
+            bgn.add(bnc);
+            blackgrayNodes.addLast(bgn);
         }
 
         // Returns nodes matrix
