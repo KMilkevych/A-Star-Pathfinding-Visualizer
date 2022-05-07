@@ -90,6 +90,7 @@ public class GraphicsCanvas extends Canvas {
      */
     public GraphicsCanvas(JCheckBox showVizualizationCheckbox, JSlider vizualizationSpeedSlider, JComboBox algorithmComboBox, JLabel startPointLabel, JLabel endPointLabel, JLabel shortestPathLabel, JLabel computationalTimeLabel, JTextArea outputLog) {
         super();
+        //this.createBufferStrategy(2);
 
         // Set background and preferred dimension
         Dimension preferredDimension = new DimensionUIResource(width, height);
