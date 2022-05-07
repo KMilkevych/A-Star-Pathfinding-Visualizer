@@ -3,8 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.plaf.DimensionUIResource;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedList;
 
 enum Mode {
     FREEPLACE(0),
@@ -55,6 +54,9 @@ public class GraphicsCanvas extends Canvas {
     // Define initial mode
     private Mode mode = Mode.FREEPLACE;
 
+    // Stream for collecting calculation results
+    LinkedList<Integer[][][]> computationList = new LinkedList<Integer[][][]>();
+
     // Declare references to other UI components
     private JCheckBox showVizualizationCheckbox;
     private JSlider vizualizationSpeedSlider;
@@ -91,6 +93,9 @@ public class GraphicsCanvas extends Canvas {
 
         // Call reset() to set initial zoom and pan depending on viewport size
         reset(width, height);
+
+        // Run performance test case
+        performanceTestCase();
 
         // Add a mouselistener to listen for different mouse inputs.
         this.addMouseListener(makeMouseInputAdapter());
@@ -148,18 +153,26 @@ public class GraphicsCanvas extends Canvas {
      */
     public void run() {
 
-        HashMap<Integer[], Integer[][]> adj = board.getGraph();
-        for (Integer[] cell : adj.keySet()) {
+        // Parse graph
+        Integer[][][][] adj = board.getGraph();
 
-            System.out.print(Arrays.toString(cell) + ": ");
+        // Empty calculation stream for collecting results
+        computationList = new LinkedList<>();
 
-            Integer[][] edges = adj.get(cell);
-            for (Integer[] e : edges) {
-                System.out.print(Arrays.toString(e));
+        // Run pathfinding algorithm on separate thread
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Run BFS
+                Integer[][][] results = Algorithm.BFS(adj, board.getStart(), board.getEnd(), computationList);
+
+                // Update shortest path label
+                shortestPathLabel.setText("" + results[board.getEnd()[0]][board.getEnd()[1]][1]);
             }
-            System.out.println();
-        }
+        });
 
+        // Run thread
+        thread.start();
     }
 
     /**
@@ -396,6 +409,21 @@ public class GraphicsCanvas extends Canvas {
                 }
             }
         };
+    }
+
+    private void performanceTestCase() {
+        boolean se = true;
+        for (int i = 1; i < cellCountY; i += 2) {
+            
+            for (int j = 0; j < cellCountX - 1; j++) {
+                if (se) {board.setTile(Cell.WALL, j, i);} else {board.setTile(Cell.WALL, j+1, i);}
+                //se = !se; // checkerboard
+            }
+            se = !se;
+        }
+
+        board.setTile(Cell.START, 0, 0);
+        board.setTile(Cell.END, cellCountX - 1, cellCountY - 1);
     }
 
 }

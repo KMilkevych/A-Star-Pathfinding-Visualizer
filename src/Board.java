@@ -97,7 +97,15 @@ public class Board {
         return ySize;
     }
 
-    private int[][] getAdjacent(int xPos, int yPos) {
+    public Integer[] getStart() {
+        return startset ? new Integer[] {start[0], start[1]} : new Integer[] {null, null};
+    }
+
+    public Integer[] getEnd() {
+        return endset ? new Integer[] {end[0], end[1]} : new Integer[] {null, null};
+    }
+
+    private Integer[][] getAdjacent(Integer xPos, Integer yPos) {
         // NO DIAGONALS FOR NOW
         /*
         int[][] adj = new int[8][2];
@@ -114,44 +122,42 @@ public class Board {
         */
 
         
-        int[][] adj = new int[4][2];
-        adj[0] = new int[] {xPos - 1, yPos};
-        adj[1] = new int[] {xPos + 1, yPos};
-        adj[2] = new int[] {xPos, yPos - 1};
-        adj[3] = new int[] {xPos, yPos + 1};
-
+        Integer[][] adj = new Integer[4][2];
+        adj[0] = new Integer[] {xPos - 1, yPos};
+        adj[1] = new Integer[] {xPos + 1, yPos};
+        adj[2] = new Integer[] {xPos, yPos - 1};
+        adj[3] = new Integer[] {xPos, yPos + 1};
 
         return adj;
     }
 
     /**
      * Parses the board and computes weighted bidirectional graph.
-     * @return - weighted bidirectional graph in adjacency map representation.
+     * @return - weighted bidirectional graph in adjacency matrix representation.
      */
-    public HashMap<Integer[], Integer[][]> getGraph() {
+    public Integer[][][][] getGraph() {
         
         /**
-         * Edges are saved in an adjacency map on the form:
-         * HashMap<Integer[2], Integer[4][3]>
-         *                                ^ x, y, and weight of possible edge (weight 0 means no edge/connection)     
-         *                             ^ 4 possible edges
-         *                 ^ coordinates of initial node
+         * Edges are stored in adjacency matrix representation on the form:
+         * new Integer[xSize][ySize][4][3]
+         *                              ^ xCoordinate, yCoordinate and weight of edge
+         *                           ^ number of adjacent nodes
+         *                    ^ yCoordinate of edge target node
+         *             ^ xCoordinate of edge target node
          */
-        
-        // Create empty adjacency map (similar to adjacency list but easier to manage with two coordinates)
-        HashMap<Integer[], Integer[][]> adj = new HashMap<Integer[], Integer[][]>();
+
+        // Create adjacency matrix
+        Integer[][][][] adj = new Integer[xSize][ySize][4][3];
         
         // Iterate for each cell
         for (int y = 0; y < ySize; y++) {
             for (int x = 0; x < xSize; x++) {
 
-                // Put empty array as entry in hashmap
-                Integer[] currentCell = new Integer[] {x, y};
-                Integer[][] edges = new Integer[4][3];
-                adj.put(currentCell, edges);
+                // Get a reference to the list of outgoing edges from this node
+                Integer[][] edges = adj[x][y];
 
                 // Grab adjacent nodes
-                int[][] adjacent = getAdjacent(x, y);
+                Integer[][] adjacent = getAdjacent(x, y);
 
                 // Fetch if current cell isnt wall
                 boolean isWall = getTile(x, y) == Cell.WALL;
