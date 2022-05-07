@@ -89,12 +89,14 @@ public class GraphicsCanvas extends Canvas {
         board = new Board(cellCountX, cellCountY);
 
         // Fill in some sample start and end cells
+        /*
         board.setTile(Cell.START, 4, 15);
         board.setTile(Cell.END, 25, 15);
+        */
 
         // Add a mouselistener to listen for different mouse inputs.
         this.addMouseListener(makeMouseInputAdapter());
-        this.addMouseMotionListener(makeMouseMotionListener());
+        this.addMouseMotionListener(makeMouseMotionListener(this));
         this.addMouseWheelListener(makeMouseWheelListener());
 
         // Set references to ui objects
@@ -120,7 +122,15 @@ public class GraphicsCanvas extends Canvas {
      * Resets the board and repaints canvas.
      */
     public void reset() {
+        // Clear board
         board.clearBoard();
+
+        // Reset zoom and pan
+        zoom = 1;
+        panX = 0;
+        panY = 0;
+
+        // Repaint canvas
         repaint();
     }
 
@@ -176,7 +186,7 @@ public class GraphicsCanvas extends Canvas {
 
         // Calculate lengths and clean offsets
         double[] sc = new double[]{cellDimension * board.getXSize() * zoom,cellDimension * board.getYSize() * zoom};
-        double[] offsets = new double[]{(-panX * zoom) % sc[0], (-panY * zoom) % sc[1]};
+        double[] offsets = worldToScreen(0, 0);
 
         // Set grid color to black
         g.setColor(Color.BLACK);
@@ -283,7 +293,7 @@ public class GraphicsCanvas extends Canvas {
                     startPanX = e.getX();
                     startPanY = e.getY();
 
-                    writeLog("panX: " + panX + ", panY: " + panY + "\n");
+                    //writeLog("panX: " + panX + ", panY: " + panY + "\n");
                 } 
             }
         };
@@ -297,16 +307,23 @@ public class GraphicsCanvas extends Canvas {
 
                 // Calculate new zoom
                 double scroll = e.getWheelRotation();
-                zoom = zoom * (1 - scroll/100.0);
+                zoom = zoom * (1 - 2*scroll/100.0);
                 writeLog("Zoom: " + zoom + "\n");
 
                 // Capture mouse position in world space after zoom
                 double[] afterZoomMPos = screenToWorld(e.getX(), e.getY());
 
-                // Calculate new pan
-                panX = panX + (beforeZoomMPos[0] - afterZoomMPos[0]);
-                panY = panY + (beforeZoomMPos[1] - afterZoomMPos[1]);
-                writeLog("Pan: " + panX + ", " + panY + "\n");
+                // Calculate new pan values
+                double nPanX = panX + (beforeZoomMPos[0] - afterZoomMPos[0]);
+                double nPanY = panY + (beforeZoomMPos[1] - afterZoomMPos[1]);
+
+                // Check that new pan values allow board visibility
+                // NOT NECESSARRY, SINCE THIS IS DONE WHEN MOUSE IS DRAGGED
+
+                // Update pan
+                panX = nPanX;
+                panY = nPanY;
+                //writeLog("Pan: " + panX + ", " + panY + "\n");
 
                 // Repaint canvas
                 repaint();
@@ -314,18 +331,38 @@ public class GraphicsCanvas extends Canvas {
         };
     }
 
-    private MouseMotionListener makeMouseMotionListener() {
+    private MouseMotionListener makeMouseMotionListener(Component parent) {
         return new MouseMotionListener() {
             public void mouseMoved(MouseEvent e) {}
 
             public void mouseDragged(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    panX = panX - (e.getX() - startPanX)/zoom;
-                    panY = panY - (e.getY() - startPanY)/zoom;
+                if (SwingUtilities.isRightMouseButton(e)) { // If panning
+                    // Calculate new pan values
+                    double nPanX = panX - (e.getX() - startPanX)/zoom;
+                    double nPanY = panY - (e.getY() - startPanY)/zoom;
+
+                    // Check that new pan values allow board visibility
+                    int boardSizeX = cellCountX * cellDimension;
+                    int boardSizeY = cellCountY * cellDimension;
+                    double screenSizeX = -parent.getWidth()/zoom;
+                    double screenSizeY = -parent.getHeight()/zoom;
+
+                    if (nPanX > boardSizeX) nPanX = boardSizeX;
+                    if (nPanY > boardSizeY) nPanY = boardSizeY;
+                    if (nPanX < screenSizeX) nPanX = screenSizeX;
+                    if (nPanY < screenSizeY) nPanY = screenSizeY;
+
+                    // Update pan
+                    panX = nPanX;
+                    panY = nPanY;
                     startPanX = e.getX();
                     startPanY = e.getY();
-                    writeLog("panX: " + panX + ", panY: " + panY + "\n");
+                    //writeLog("panX: " + panX + ", panY: " + panY + "\n");
+
+                    // Repaint canvas
                     repaint();
+                } else if (SwingUtilities.isLeftMouseButton(e)) { // If drawing
+                    // Need to implement
                 }
             }
         };
