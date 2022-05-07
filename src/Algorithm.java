@@ -60,9 +60,17 @@ public class Algorithm {
 
             // Set color to black
             nodes[cnode[0]][cnode[1]][0] = 2;
-            
+
+            // Clone current instance of nodes
+            Integer[][][] nodescopy = new Integer[nodes.length][nodes[0].length][nodes[0][0].length];
+            for (int i = 0; i < nodescopy.length; i++) {
+                for (int j = 0; j < nodescopy[0].length; j++) {
+                    nodescopy[i][j] = new Integer[]{nodes[i][j][0], nodes[i][j][1], nodes[i][j][2]};
+                }
+            }
+
             // Add current instance of nodes to end of linked list
-            computationList.addLast(nodes);
+            computationList.addLast(nodescopy);
         }
 
         // Returns nodes matrix

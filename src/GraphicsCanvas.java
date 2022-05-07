@@ -3,6 +3,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.plaf.DimensionUIResource;
+
+import java.util.Arrays;
 import java.util.LinkedList;
 
 enum Mode {
@@ -56,6 +58,12 @@ public class GraphicsCanvas extends Canvas {
 
     // Stream for collecting calculation results
     LinkedList<Integer[][][]> computationList = new LinkedList<Integer[][][]>();
+
+    // Current computationResult
+    Integer[][][] currentComputation = computationList.pollFirst();
+
+    // Timer for drawing steps
+    Timer vizualizationTimer = new Timer(1, null);
 
     // Declare references to other UI components
     private JCheckBox showVizualizationCheckbox;
@@ -152,11 +160,10 @@ public class GraphicsCanvas extends Canvas {
      * Forces parsing of the board, and a run of the specified algorithm.
      */
     public void run() {
-
         // Parse graph
         Integer[][][][] adj = board.getGraph();
 
-        // Empty calculation stream for collecting results
+        // Empty calculation list for collecting results
         computationList = new LinkedList<>();
 
         // Run pathfinding algorithm on separate thread
@@ -173,6 +180,23 @@ public class GraphicsCanvas extends Canvas {
 
         // Run thread
         thread.start();
+
+        // Run timer for forcing update of vizualization
+        vizualizationTimer.stop();
+        vizualizationTimer = new Timer(2000/vizualizationSpeedSlider.getValue(), new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Integer[][][] computationInstance = computationList.pollFirst();
+
+                if (computationInstance != null) {
+                    currentComputation = computationInstance;
+                    rePaint();
+                }
+            }
+        });
+        vizualizationTimer.start();
+
+        
     }
 
     /**
@@ -211,6 +235,10 @@ public class GraphicsCanvas extends Canvas {
      * @param g - Graphics object used for painting all content.
      */
     private void paintContent(Graphics g) {
+        
+        // Paint the current computation
+        paintComputation(g);
+        
         // Paint the board
         paintBoard(g);
 
@@ -281,6 +309,34 @@ public class GraphicsCanvas extends Canvas {
                 }
             }
         }
+    }
+
+    /**
+     * Draws the computation instance to screen, if any is available
+     * @param g - Graphics object to draw computation instance with
+     */
+    private void paintComputation(Graphics g) {
+
+        if (currentComputation != null) {
+            for (int x = 0; x < currentComputation.length; x++) {
+
+                for (int y = 0; y < currentComputation[0].length; y++) {
+    
+                    Integer[] nodeInfo = currentComputation[x][y];
+                    Color drawColor = Color.PINK; // Error color
+    
+                    if (nodeInfo[0] == 1) {
+                        drawColor = Color.GREEN;
+                    } else if (nodeInfo[0] == 2) {
+                        drawColor = Color.YELLOW;
+                    } else {continue;}
+    
+                    drawTile(g, drawColor, x*cellDimension, y*cellDimension, cellDimension);
+                }
+
+            }
+        }
+        
     }
 
     private void drawTile(Graphics g, Color c, int xPos, int yPos, int size) {
@@ -424,6 +480,10 @@ public class GraphicsCanvas extends Canvas {
 
         board.setTile(Cell.START, 0, 0);
         board.setTile(Cell.END, cellCountX - 1, cellCountY - 1);
+    }
+
+    private void rePaint() {
+        repaint();
     }
 
 }

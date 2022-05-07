@@ -169,7 +169,8 @@ public class GUI {
         settingsPanel.add(vizualizationSpeedLabel, c);
 
         // Create slider
-        JSlider vizualizationSpeedSlider = new JSlider();
+        JSlider vizualizationSpeedSlider = new JSlider(1, 200, 5);
+        //vizualizationSpeedSlider.addChangeListener(e -> outputLog.append("slider value: " + vizualizationSpeedSlider.getValue() + "\n"));
         c.gridx = 1;
         c.gridy = 1;
         c.anchor = GridBagConstraints.WEST;
