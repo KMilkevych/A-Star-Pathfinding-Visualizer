@@ -3,6 +3,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.plaf.DimensionUIResource;
+import java.util.Arrays;
+import java.util.HashMap;
 
 enum Mode {
     FREEPLACE(0),
@@ -35,6 +37,10 @@ public class GraphicsCanvas extends Canvas {
     // Define size of board
     int cellCountX = 60;
     int cellCountY = 60;
+
+    // Width and Height of board in world size
+    int width = cellCountX * cellDimension;
+    int height = cellCountY * cellDimension;
 
     // Define zoom and pan used for viewport/canvas
     private double zoom = 1;
@@ -75,24 +81,16 @@ public class GraphicsCanvas extends Canvas {
     public GraphicsCanvas(JCheckBox showVizualizationCheckbox, JSlider vizualizationSpeedSlider, JComboBox algorithmComboBox, JLabel startPointLabel, JLabel endPointLabel, JLabel shortestPathLabel, JLabel computationalTimeLabel, JTextArea outputLog) {
         super();
 
-        int width = cellCountX * cellDimension;
-        int height = cellCountY * cellDimension;
-        Dimension preferredDimension = new DimensionUIResource(width, height); // old: 600x400
+        // Set background and preferred dimension
+        Dimension preferredDimension = new DimensionUIResource(width, height);
         setBackground(Color.LIGHT_GRAY);
         setPreferredSize(preferredDimension);
-
-        // Define panX and panY MAYBE DROP IF NOT WORK AS EXPECTED
-        //panX = -width / 2.0;
-        //panY = -height / 2.0;
 
         // Create a board to contain all user input cells
         board = new Board(cellCountX, cellCountY);
 
-        // Fill in some sample start and end cells
-        /*
-        board.setTile(Cell.START, 4, 15);
-        board.setTile(Cell.END, 25, 15);
-        */
+        // Call reset() to set initial zoom and pan depending on viewport size
+        reset(width, height);
 
         // Add a mouselistener to listen for different mouse inputs.
         this.addMouseListener(makeMouseInputAdapter());
@@ -119,19 +117,49 @@ public class GraphicsCanvas extends Canvas {
     }
 
     /**
-     * Resets the board and repaints canvas.
+     * Resets the board and repaints canvas with current viewport dimensions.
      */
     public void reset() {
+        reset(getWidth(), getHeight());
+    }
+
+    /**
+     * Resets the board and repaints canvas, using specified parameters for width and height of viewport-
+     * @param viewportWidth
+     * @param viewportHeight
+     */
+    public void reset(int viewportWidth, int viewportHeight) {
         // Clear board
         board.clearBoard();
 
-        // Reset zoom and pan
+        // Reset zoom
         zoom = 1;
-        panX = 0;
-        panY = 0;
+
+        // Calculate and set new pans such that grid/board is in center of viewport
+        panX = -(viewportWidth/zoom - width) / 2;
+        panY = -(viewportHeight/zoom - height) / 2;
 
         // Repaint canvas
         repaint();
+    }
+
+    /**
+     * Forces parsing of the board, and a run of the specified algorithm.
+     */
+    public void run() {
+
+        HashMap<Integer[], Integer[][]> adj = board.getGraph();
+        for (Integer[] cell : adj.keySet()) {
+
+            System.out.print(Arrays.toString(cell) + ": ");
+
+            Integer[][] edges = adj.get(cell);
+            for (Integer[] e : edges) {
+                System.out.print(Arrays.toString(e));
+            }
+            System.out.println();
+        }
+
     }
 
     /**
@@ -283,11 +311,13 @@ public class GraphicsCanvas extends Canvas {
                     int xTile = (int) (worldPos[0] / cellDimension);
                     int yTile = (int) (worldPos[1] / cellDimension);
 
-                    // Set the tile on board using transformed coordinates
-                    board.setTile(Cell.values()[mode.getValue()], xTile, yTile); // This is bad code but enum implementation stops me from doing otherwise
+                    if ((xTile >= 0 && xTile < cellCountX) && (yTile >= 0 && yTile < cellCountY)) {
+                        // Set the tile on board using transformed coordinates
+                        board.setTile(Cell.values()[mode.getValue()], xTile, yTile); // This is bad code but enum implementation stops me from doing otherwise
 
-                    // Repaint the canvas
-                    repaint();
+                        // Repaint the canvas
+                        repaint();
+                    }                    
                 } else if (e.getButton() == 3) { // if right-click
                     // Update startPans
                     startPanX = e.getX();

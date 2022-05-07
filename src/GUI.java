@@ -267,14 +267,15 @@ public class GUI {
         c.weightx = 0.5;
 
         JButton runButton = new JButton("Run");
+        runButton.addActionListener(e -> graphicsCanvas.run());
         c.gridx = 0;
         c.anchor = GridBagConstraints.EAST;
         configurationPanel.add(runButton, c);
         
         JButton clearButton = new JButton("Clear");
+        clearButton.addActionListener(e -> graphicsCanvas.reset());
         c.gridx = 1;
         c.anchor = GridBagConstraints.WEST;
-        clearButton.addActionListener(e -> graphicsCanvas.reset());
         configurationPanel.add(clearButton, c);
 
         return configurationPanel;
