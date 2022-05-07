@@ -145,6 +145,11 @@ public class GraphicsCanvas extends Canvas {
         // Clear board
         board.clearBoard();
 
+        // Clear vizualization list and vizualization and stop timer
+        currentComputation = null;
+        computationList = new LinkedList<>();
+        vizualizationTimer.stop();
+
         // Reset zoom
         zoom = 1;
 
