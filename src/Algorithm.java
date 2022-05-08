@@ -19,7 +19,7 @@ public class Algorithm {
      * @param end
      * @return
      */
-    public static int[][][] BFS(int[][][][] graph, int[] start, int[] end, LinkedList<ArrayList<CopyOnWriteArrayList<int[]>>> blackgrayNodes) {
+    public static int[][][] BFS(int[][][][] graph, int[] start, int[] end, LinkedList<ArrayList<ArrayList<int[]>>> blackgrayNodes) {
         // Define matrix to store node information
         int[][][] nodes = new int[graph.length][graph[0].length][4];
         //                                                               ^ {color, depth, parentX, parentY}
@@ -78,19 +78,19 @@ public class Algorithm {
             blacknodes.add(cnode);
 
             // Copy arraylists
-            CopyOnWriteArrayList<int[]> gnc = new CopyOnWriteArrayList<>();
+            ArrayList<int[]> gnc = new ArrayList<>();
             for (int[] n : graynodes) {
                 gnc.add(n.clone());
             }
 
             // Copy arraylists
-            CopyOnWriteArrayList<int[]> bnc = new CopyOnWriteArrayList<>();
+            ArrayList<int[]> bnc = new ArrayList<>();
             for (int[] n : blacknodes) {
                 bnc.add(n.clone());
             }
 
             // Add to linkedlist
-            ArrayList<CopyOnWriteArrayList<int[]>> bgn = new ArrayList<>();
+            ArrayList<ArrayList<int[]>> bgn = new ArrayList<>();
             bgn.add(gnc);
             bgn.add(bnc);
             blackgrayNodes.addLast(bgn);

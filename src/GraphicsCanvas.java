@@ -7,7 +7,6 @@ import javax.swing.plaf.DimensionUIResource;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 enum Mode {
     FREEPLACE(0),
@@ -38,8 +37,8 @@ public class GraphicsCanvas extends Canvas {
     private int cellDimension = 10; //px
 
     // Define size of board
-    int cellCountX = 60;
-    int cellCountY = 60;
+    int cellCountX = 28;
+    int cellCountY = 28;
 
     // Width and Height of board in world size
     int width = cellCountX * cellDimension;
@@ -59,10 +58,10 @@ public class GraphicsCanvas extends Canvas {
     private Mode mode = Mode.FREEPLACE;
 
     // Stream for collecting calculation results
-    LinkedList<ArrayList<CopyOnWriteArrayList<int[]>>> computationList = new LinkedList<ArrayList<CopyOnWriteArrayList<int[]>>>();
+    LinkedList<ArrayList<ArrayList<int[]>>> computationList = new LinkedList<ArrayList<ArrayList<int[]>>>();
 
     // Current computationResult
-    ArrayList<CopyOnWriteArrayList<int[]>> currentComputation = computationList.pollFirst();
+    ArrayList<ArrayList<int[]>> currentComputation = computationList.pollFirst();
 
     // Timer for drawing steps
     Timer vizualizationTimer = new Timer(1, null);
@@ -174,6 +173,10 @@ public class GraphicsCanvas extends Canvas {
         // Empty calculation list for collecting results
         computationList = new LinkedList<>();
 
+        // Reset shortest path label
+        // Update shortest path label
+        shortestPathLabel.setText("N/A");
+
         // Run pathfinding algorithm on separate thread
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -195,10 +198,11 @@ public class GraphicsCanvas extends Canvas {
 
         // Run timer for forcing update of vizualization
         vizualizationTimer.stop();
-        vizualizationTimer = new Timer(2000/vizualizationSpeedSlider.getValue(), new ActionListener() {
+        //vizualizationTimer = new Timer(2000/vizualizationSpeedSlider.getValue(), new ActionListener() {
+        vizualizationTimer = new Timer(10, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArrayList<CopyOnWriteArrayList<int[]>> computationInstance = computationList.pollFirst();
+                ArrayList<ArrayList<int[]>> computationInstance = computationList.pollFirst();
 
                 if (computationInstance != null) {
                     currentComputation = computationInstance;
@@ -331,8 +335,8 @@ public class GraphicsCanvas extends Canvas {
 
         if (currentComputation != null) {
 
-            CopyOnWriteArrayList<int[]> graynodes = currentComputation.get(0);
-            CopyOnWriteArrayList<int[]> blacknodes = currentComputation.get(1);
+            ArrayList<int[]> graynodes = currentComputation.get(0);
+            ArrayList<int[]> blacknodes = currentComputation.get(1);
 
             for (int[] n : graynodes) {
                 drawTile(g, Color.GREEN, n[0]*cellDimension, n[1]*cellDimension, cellDimension);
@@ -468,7 +472,18 @@ public class GraphicsCanvas extends Canvas {
                     // Repaint canvas
                     repaint();
                 } else if (SwingUtilities.isLeftMouseButton(e)) { // If drawing
-                    // Need to implement
+                    // Transform pressed coordinates into proper tile coordinates in board
+                    double[] worldPos = screenToWorld(e.getX(), e.getY());
+                    int xTile = (int) (worldPos[0] / cellDimension);
+                    int yTile = (int) (worldPos[1] / cellDimension);
+
+                    if ((xTile >= 0 && xTile < cellCountX) && (yTile >= 0 && yTile < cellCountY)) {
+                        // Set the tile on board using transformed coordinates
+                        board.setTile(Cell.values()[mode.getValue()], xTile, yTile); // This is bad code but enum implementation stops me from doing otherwise
+
+                        // Repaint the canvas
+                        repaint();
+                    }  
                 }
             }
         };
