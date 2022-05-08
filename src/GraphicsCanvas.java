@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
+import java.awt.image.*;
 import javax.swing.plaf.DimensionUIResource;
 
 import java.util.Arrays;
@@ -30,15 +31,15 @@ enum Mode {
 public class GraphicsCanvas extends Canvas {
 
     // Decleare buffer and buffergraphics
-    private Image buffer;
+    private BufferedImage buffer;
     private Graphics bufferGraphics; 
 
     // Define initial cell size
     private int cellDimension = 10; //px
 
     // Define size of board
-    int cellCountX = 28;
-    int cellCountY = 28;
+    int cellCountX = 60;
+    int cellCountY = 60;
 
     // Width and Height of board in world size
     int width = cellCountX * cellDimension;
@@ -225,8 +226,11 @@ public class GraphicsCanvas extends Canvas {
         //cellDimension = Math.min(this.getWidth()/board.getXSize(), this.getHeight()/board.getYSize());
 
         // Initialize buffer
-        buffer = createImage(this.getSize().width, this.getSize().height);
-        bufferGraphics = buffer.getGraphics();
+        if (buffer == null) {
+            buffer = new BufferedImage(this.getSize().width, this.getSize().height, BufferedImage.TYPE_INT_RGB);
+            bufferGraphics = buffer.getGraphics();
+        }
+        
 
         // Clear screen in background
         bufferGraphics.setColor(getBackground());
