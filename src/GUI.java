@@ -289,6 +289,11 @@ public class GUI {
     private Component makeCenterLayout() {
         // Create a sample canvas
         GraphicsCanvas canvas = new GraphicsCanvas(showVizualizationCheckbox, vizualizationSpeedSlider, algorithmComboBox, startPointLabel, endPointLabel, shortestPathLabel, computationalTimeLabel, outputLog);
+        canvas.addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent e) {
+                canvas.resized();
+            }
+        });
         this.graphicsCanvas = canvas;
 
         return canvas;

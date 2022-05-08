@@ -511,7 +511,6 @@ public class GraphicsCanvas extends Canvas {
             
             for (int j = 0; j < cellCountX - 1; j++) {
                 if (se) {board.setTile(Cell.WALL, j, i);} else {board.setTile(Cell.WALL, j+1, i);}
-                //se = !se; // checkerboard
             }
             se = !se;
         }
@@ -522,6 +521,11 @@ public class GraphicsCanvas extends Canvas {
 
     private void rePaint() {
         repaint();
+    }
+
+    public void resized() {
+        buffer = new BufferedImage(this.getSize().width, this.getSize().height, BufferedImage.TYPE_INT_RGB);
+        bufferGraphics = buffer.getGraphics();
     }
 
     public void updateTimer() {
