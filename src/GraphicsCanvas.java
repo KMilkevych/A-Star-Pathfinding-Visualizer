@@ -38,8 +38,8 @@ public class GraphicsCanvas extends Canvas {
     private int cellDimension = 10; //px
 
     // Define size of board
-    int cellCountX = 60;
-    int cellCountY = 60;
+    int cellCountX = 28;
+    int cellCountY = 28;
 
     // Width and Height of board in world size
     int width = cellCountX * cellDimension;
@@ -60,12 +60,14 @@ public class GraphicsCanvas extends Canvas {
 
     // Stream for collecting calculation results
     LinkedList<ArrayList<ArrayList<int[]>>> computationList = new LinkedList<ArrayList<ArrayList<int[]>>>();
+    // The arraylists holds arraylists for each of the type of cells
 
     // Current computationResult
     ArrayList<ArrayList<int[]>> currentComputation = computationList.pollFirst();
 
     // Timer for drawing steps
-    Timer vizualizationTimer = new Timer(1, null);
+    Timer vizualizationTimer = new Timer(100, null);
+    
 
     // Declare references to other UI components
     private JCheckBox showVizualizationCheckbox;
@@ -199,16 +201,26 @@ public class GraphicsCanvas extends Canvas {
 
         // Run timer for forcing update of vizualization
         vizualizationTimer.stop();
-        //vizualizationTimer = new Timer(2000/vizualizationSpeedSlider.getValue(), new ActionListener() {
-        vizualizationTimer = new Timer(10, new ActionListener() {
+
+        vizualizationTimer = new Timer((int)(1000000/Math.pow(vizualizationSpeedSlider.getValue(), 3)), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArrayList<ArrayList<int[]>> computationInstance = computationList.pollFirst();
+                
+                // Maybe overkill, idk.
+                Runnable r = new Runnable() {
+                    public void run() {
+                        ArrayList<ArrayList<int[]>> computationInstance = computationList.pollFirst();
 
-                if (computationInstance != null) {
-                    currentComputation = computationInstance;
-                    rePaint();
-                }
+                        if (computationInstance != null) {
+                            currentComputation = computationInstance;
+                            rePaint();
+                        }
+                    }
+                };
+                Thread t = new Thread(r);
+                t.start();
+
+                
             }
         });
         vizualizationTimer.start();
@@ -510,6 +522,10 @@ public class GraphicsCanvas extends Canvas {
 
     private void rePaint() {
         repaint();
+    }
+
+    public void updateTimer() {
+        vizualizationTimer.setDelay((int)(1000000/Math.pow(vizualizationSpeedSlider.getValue(), 3)));
     }
 
 }
