@@ -38,8 +38,8 @@ public class GraphicsCanvas extends Canvas {
     private int cellDimension = 10; //px
 
     // Define size of board
-    int cellCountX = 28;
-    int cellCountY = 28;
+    int cellCountX = 60;
+    int cellCountY = 60;
 
     // Width and Height of board in world size
     int width = cellCountX * cellDimension;
