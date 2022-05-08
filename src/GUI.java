@@ -158,7 +158,7 @@ public class GUI {
         // Create checkbox
         JCheckBox showVizualizationCB = new JCheckBox();
         showVizualizationCB.setSelected(true);
-        showVizualizationCB.addActionListener(e -> graphicsCanvas.setShowVizualization(showVizualizationCB.isSelected()));
+        showVizualizationCB.addActionListener(e -> graphicsCanvas.setShowVizualization());
         c.gridx = 1;
         c.gridy = 0;
         c.anchor = GridBagConstraints.WEST;
@@ -175,7 +175,7 @@ public class GUI {
         // Create checkbox
         JCheckBox enableDiagonalsCB = new JCheckBox();
         enableDiagonalsCB.setSelected(false);
-        enableDiagonalsCB.addActionListener(e -> graphicsCanvas.setEnableDiagonals(enableDiagonalsCB.isSelected()));
+        enableDiagonalsCB.addActionListener(e -> graphicsCanvas.setEnableDiagonals());
         c.gridx = 1;
         c.gridy = 1;
         c.anchor = GridBagConstraints.WEST;

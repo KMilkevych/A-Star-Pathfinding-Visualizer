@@ -568,12 +568,12 @@ public class GraphicsCanvas extends Canvas {
         vizualizationTimer.setDelay((int)(1000000/Math.pow(vizualizationSpeedSlider.getValue(), 3)));
     }
 
-    public void setShowVizualization(boolean showVizualization) {
-        this.showVizualization = showVizualization;
+    public void setShowVizualization() {
+        this.showVizualization = showVizualizationCheckbox.isSelected();
     }
 
-    public void setEnableDiagonals(boolean enableDiagonals) {
-        this.enableDiagonals = enableDiagonals;
+    public void setEnableDiagonals() {
+        this.enableDiagonals = enableDiagonalsCB.isSelected();
     }
 
 }
