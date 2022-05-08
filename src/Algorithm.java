@@ -1,29 +1,176 @@
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Algorithm {
     
-    public static void A_Star(Integer[][][][] graph, Integer[] start, Integer[] end) {
+    /**
+      * Computes length of shortest path from specified start node to specified end node using A* pathfinding.
+      * Returns a matrix representing the final node and depth, as well as parent of each color,
+      * which allows for reconstruction of shortest path to end node .
+      * @param graph - Graph in adjacency matrix form
+      * @param start - Start node
+      * @param end   - End node
+      * @param vizualization - Reference to linked list, to which to save each computation step, for future vizualization
+      * @param saveVizualization - Boolean indicating whether to supply computation steps to vizualization linked list.
+      * @return
+      */
+    public static int[][][] A_Star(int[][][][] graph, int[] start, int[] end, LinkedList<ArrayList<ArrayList<int[]>>> vizualization, boolean saveVizualizatio) {
+        
+        // Define matrix to store node information
+        int[][][] nodes = new int[graph.length][graph[0].length][6];
+        //                                                      ^ {openness, f, g, h, parentX, parentY}
+        //                                                         0 = open, 1 = closed, 2 = unspecified
 
+        // Fill out matrix with values
+        for (int i = 0; i < nodes.length; i++) {
+            for (int j = 0; j < nodes[0].length; j++) {
+                nodes[i][j] = new int[]{2, Integer.MAX_VALUE, Integer.MAX_VALUE, Math.abs(i - end[0]) + Math.abs(j - end[1]), -1, -1}; // Use Manhattan distance for g values
+            }
+        }
+
+        // Create comparator for priorityqueues
+        Comparator<int[]> qc = new Comparator<int[]>() {
+            public int compare(int[] a, int[] b) {
+                return nodes[a[0]][a[1]][1] - nodes[b[0]][b[1]][1]; // Compare using calculated f values for nodes
+            }
+        };
+
+        // Create priorityqueues for open and closed nodes
+        PriorityQueue<int[]> open = new PriorityQueue<>(qc);
+        PriorityQueue<int[]> closed = new PriorityQueue<>(qc);
+
+        // Enqueue start node
+        nodes[start[0]][start[1]] = new int[]{0, 0, 0, nodes[start[0]][start[1]][3], -1, -1};
+        open.add(new int[]{start[0], start[1], nodes[start[0]][start[1]][1]});
+
+        // Iterate while there are still open nodes
+        while (!open.isEmpty()) {
+
+            // Remove first node in queue
+            int[] cnode = open.poll();
+
+            // Check if cnode is end/target node
+            if (cnode[0] == end[0] && cnode[1] == end[1]) {
+                break;
+            }
+
+            // Get adjacent nodes
+            int[][] adjacent = graph[cnode[0]][cnode[1]];
+
+            // Iterate over each adjacent node
+            for (int[] n : adjacent) {
+
+                // If there is an actual edge to adjacent node
+                if (n[2] == 0) {continue;}
+
+                // Get information on adjacent node
+                int list = nodes[n[0]][n[1]][0];
+                int pref = nodes[n[0]][n[1]][1];
+                int newg = nodes[cnode[0]][cnode[1]][2] + 1;
+                int newf = nodes[n[0]][n[1]][3] + newg;
+
+                // If newf isnt better than the adjacent node's previous f, dont do anything
+                if (newf >= pref) {continue;}
+
+                // Compute new node spec
+                int[] newspec = new int[]{0, newf, newg, nodes[n[0]][n[1]][3], cnode[0], cnode[1]};
+
+
+                // Act depending on if the node is in the open or closed list
+                if (list == 2) {
+                    // Update node with new f, g, and parentX, parentY values based on current node
+                    nodes[n[0]][n[1]] = newspec;
+                    // Add node to list of open nodes
+                    open.add(new int[]{n[0], n[1], newf});
+
+                } else if (list == 1) {
+                    // Remove node from list of closed nodes
+                    closed.remove(new int[]{n[0], n[1], pref});
+                    // Update node with new f, g, and parentX, parentY values based on current node
+                    nodes[n[0]][n[1]] = newspec;
+                    // Add node to list of open nodes
+                    open.add(new int[]{n[0], n[1], newf});
+
+                } else if (list == 0) {
+                    // Remove node from queue
+                    open.remove(new int[]{n[0], n[1], pref});
+                    // Update node with new f, g, and parentX, parentY values based on current node
+                    nodes[n[0]][n[1]] = newspec;
+                    // Add node back to queue
+                    open.add(new int[] {n[0], n[1], newf});
+                }
+            }
+
+            // Remove self from open queue
+            open.remove(cnode);
+
+            // Update node as closed
+            nodes[cnode[0]][cnode[1]][0] = 1;
+
+            // Add node to closed nodes
+            closed.add(cnode);
+
+            // Add copy of queues to visualization list
+            ArrayList<int[]> o = new ArrayList<>();
+            for (int[] n : open) {
+                o.add(new int[] {n[0], n[1]});
+            }
+
+            ArrayList<int[]> c = new ArrayList<>();
+            for (int[] n : closed) {
+                o.add(new int[] {n[0], n[1]});
+            }
+
+            ArrayList<ArrayList<int[]>> openclosed = new ArrayList<>();
+            openclosed.add(o);
+            openclosed.add(c);
+
+            vizualization.addLast(openclosed);
+        }
+
+        return nodes;
     }
 
-    /**
-     * Computes length of shortest path from all nodes reachable from start node.
-     * Returns a matrix representing the final node and depth, as well as parent of each color,
-     * which allows for reconstruction of shortest path to an arbitrary node.
-     * @param graph
-     * @param start
-     * @param end
-     * @return
-     */
+    public static ArrayList<int[]> A_Star_path(int[][][] result, int[] start, int[] end) {
+
+        // Set initial node to parent of end node
+        int[] node = new int[] {result[end[0]][end[1]][4], result[end[0]][end[1]][5]};
+
+        // Prepare ArrayList to hold path
+        ArrayList<int[]> path = new ArrayList<>();
+
+        while (node[0] != start[0] || node[1] != start[1]) {
+            // Add node to path
+            path.add(node);
+
+            // Set node to parent of current node
+            node = new int[] {result[node[0]][node[1]][4], result[node[0]][node[1]][5]};
+        }
+
+        // Return path
+        return path;
+    }
+
+      /**
+      * Computes length of shortest path from specified start node to specified end node using Breadth First Search.
+      * Returns a matrix representing the final node and depth, as well as parent of each color,
+      * which allows for reconstruction of shortest path to end node.
+      * @param graph - Graph in adjacency matrix form
+      * @param start - Start node
+      * @param end   - End node
+      * @param vizualization - Reference to linked list, to which to save each computation step, for future vizualization
+      * @param saveVizualization - Boolean indicating whether to supply computation steps to vizualization linked list.
+      * @return
+      */
     public static int[][][] BFS(int[][][][] graph, int[] start, int[] end, LinkedList<ArrayList<ArrayList<int[]>>> vizualization, boolean saveVizualization) {
         // Define matrix to store node information
         int[][][] nodes = new int[graph.length][graph[0].length][4];
-        //                                                               ^ {color, depth, parentX, parentY}
-        //                                                                  colors: 0=white, 1=gray, 2=black
+        //                                                       ^ {color, depth, parentX, parentY}
+        //                                                          colors: 0=white, 1=gray, 2=black
 
         // Fill out matrix with empty values
         for (int i = 0; i < nodes.length; i++) {

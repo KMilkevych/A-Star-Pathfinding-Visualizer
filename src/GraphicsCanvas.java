@@ -203,10 +203,16 @@ public class GraphicsCanvas extends Canvas {
                 int[] end = new int[] {e[0], e[1]};
 
                 // Run BFS
-                int[][][] results = Algorithm.BFS(adj, start, end, computationList, showVizualization);
+                //int[][][] results = Algorithm.BFS(adj, start, end, computationList, showVizualization);
 
                 // Compute shortest path using results
-                currentPath = Algorithm.BFS_path(results, start, end);
+                //currentPath = Algorithm.BFS_path(results, start, end);
+
+                // Run A*
+                int[][][] results = Algorithm.A_Star(adj, start, end, computationList, showVizualization);
+
+                // Compute shortest path using results
+                currentPath = Algorithm.A_Star_path(results, start, end);
 
                 // Update shortest path label
                 shortestPathLabel.setText("" + results[board.getEnd()[0]][board.getEnd()[1]][1]);
@@ -323,7 +329,7 @@ public class GraphicsCanvas extends Canvas {
         double[] offsets = worldToScreen(0, 0);
 
         // Set grid color to black
-        g.setColor(Color.BLACK);
+        g.setColor(Color.GRAY);
         
         // Draw grid
         for (int x = 0; x < board.getXSize() + 1; x++) {
@@ -388,17 +394,20 @@ public class GraphicsCanvas extends Canvas {
 
         if (currentComputation != null) {
 
-            ArrayList<int[]> graynodes = currentComputation.get(0);
-            ArrayList<int[]> blacknodes = currentComputation.get(1);
+            int s = currentComputation.size();
+            if (s > 0) {
+                ArrayList<int[]> graynodes = currentComputation.get(0);
+                for (int[] n : graynodes) {
+                    drawTile(g, Color.GREEN, n[0]*cellDimension, n[1]*cellDimension, cellDimension);
+                }
 
-            for (int[] n : graynodes) {
-                drawTile(g, Color.GREEN, n[0]*cellDimension, n[1]*cellDimension, cellDimension);
+                if (s > 1) {
+                    ArrayList<int[]> blacknodes = currentComputation.get(1);
+                    for (int[] n : blacknodes) {
+                        drawTile(g, Color.YELLOW, n[0]*cellDimension, n[1]*cellDimension, cellDimension);
+                    }
+                }
             }
-
-            for (int[] n : blacknodes) {
-                drawTile(g, Color.YELLOW, n[0]*cellDimension, n[1]*cellDimension, cellDimension);
-            }
-
         }     
     }
 

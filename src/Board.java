@@ -118,17 +118,12 @@ public class Board {
 
     private int[][] getAdjacent_Diagonal(int xPos, int yPos) {
 
-        int[][] adj = new int[8][2];
+        int[][] adj = new int[4][2];
 
         adj[0] = new int[] {xPos - 1, yPos - 1};
-        adj[1] = new int[] {xPos - 1, yPos};
-        adj[2] = new int[] {xPos - 1, yPos + 1};
-        adj[3] = new int[] {xPos, yPos - 1};
-        // self goes here
-        adj[4] = new int[] {xPos, yPos + 1};
-        adj[5] = new int[] {xPos + 1, yPos - 1};
-        adj[6] = new int[] {xPos + 1, yPos};
-        adj[7] = new int[] {xPos + 1, yPos + 1};
+        adj[1] = new int[] {xPos - 1, yPos + 1};
+        adj[2] = new int[] {xPos + 1, yPos - 1};
+        adj[3] = new int[] {xPos + 1, yPos + 1};
 
         return adj;
     }
@@ -158,11 +153,11 @@ public class Board {
                 // Get a reference to the list of outgoing edges from this node
                 int[][] edges = adj[x][y];
 
-                // Grab adjacent nodes
-                int[][] adjacent = diagonals ? getAdjacent_Diagonal(x, y) : getAdjacent(x, y);
-
-                // Fetch if current cell isnt wall
+                // Fetch if current cell is wall
                 boolean isWall = getTile(x, y) == Cell.WALL;
+
+                // Grab adjacent nodes
+                int[][] adjacent = getAdjacent(x, y);
 
                 // Iterate for each adjacent node
                 for (int i = 0; i < adjacent.length; i++) {
@@ -177,6 +172,27 @@ public class Board {
                     if (!isWall && (0 <= ax && ax < xSize) && (0 <= ay && ay < ySize) && !(getTile(ax, ay) == Cell.WALL)) {
                         // Put in edge with weight 1
                         edges[i] = new int[] {ax, ay, 1};
+                    }
+                }
+
+                // If diagonals are enabled do same as for regular, but also with diagonals
+                if (diagonals) {
+                    int[][] adjacentDiagonals = getAdjacent_Diagonal(x, y);
+
+                    // Iterate for each adjacent node
+                    for (int i = 0; i < adjacentDiagonals.length; i++) {
+                        // Save coordinates of adjacent cell
+                        int ax = adjacentDiagonals[i][0];
+                        int ay = adjacentDiagonals[i][1];
+
+                        // Put no connection in as default.
+                        edges[i+4] = new int[] {ax, ay, 0};
+
+                        // If current cell isnt wall and adjacent cell isnt wall, and in boundaries
+                        if (!isWall && (0 <= ax && ax < xSize) && (0 <= ay && ay < ySize) && !(getTile(ax, ay) == Cell.WALL)) {
+                            // Put in diagonal edge
+                            edges[i+4] = new int[] {ax, ay, 1}; // Diagonal edges have weight 1
+                        }
                     }
                 }
             }
