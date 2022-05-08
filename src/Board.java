@@ -106,22 +106,7 @@ public class Board {
     }
 
     private int[][] getAdjacent(int xPos, int yPos) {
-        // NO DIAGONALS FOR NOW
-        /*
-        int[][] adj = new int[8][2];
-        // Hard coding, because not wanting to use ArrayList to avoid adding self
-        adj[0] = new int[] {xPos - 1, yPos - 1};
-        adj[1] = new int[] {xPos - 1, yPos};
-        adj[2] = new int[] {xPos - 1, yPos + 1};
-        adj[3] = new int[] {xPos, yPos - 1};
-        // self goes here
-        adj[4] = new int[] {xPos, yPos + 1};
-        adj[5] = new int[] {xPos + 1, yPos - 1};
-        adj[6] = new int[] {xPos + 1, yPos};
-        adj[7] = new int[] {xPos + 1, yPos + 1};
-        */
 
-        
         int[][] adj = new int[4][2];
         adj[0] = new int[] {xPos - 1, yPos};
         adj[1] = new int[] {xPos + 1, yPos};
@@ -131,23 +116,40 @@ public class Board {
         return adj;
     }
 
+    private int[][] getAdjacent_Diagonal(int xPos, int yPos) {
+
+        int[][] adj = new int[8][2];
+
+        adj[0] = new int[] {xPos - 1, yPos - 1};
+        adj[1] = new int[] {xPos - 1, yPos};
+        adj[2] = new int[] {xPos - 1, yPos + 1};
+        adj[3] = new int[] {xPos, yPos - 1};
+        // self goes here
+        adj[4] = new int[] {xPos, yPos + 1};
+        adj[5] = new int[] {xPos + 1, yPos - 1};
+        adj[6] = new int[] {xPos + 1, yPos};
+        adj[7] = new int[] {xPos + 1, yPos + 1};
+
+        return adj;
+    }
+
     /**
      * Parses the board and computes weighted bidirectional graph.
      * @return - weighted bidirectional graph in adjacency matrix representation.
      */
-    public int[][][][] getGraph() {
+    public int[][][][] getGraph(boolean diagonals) {
         
         /**
          * Edges are stored in adjacency matrix representation on the form:
          * new Integer[xSize][ySize][4][3]
          *                              ^ xCoordinate, yCoordinate and weight of edge
-         *                           ^ number of adjacent nodes
+         *                           ^ number of adjacent nodes (8 if with diagonals, 4 if without)
          *                    ^ yCoordinate of edge target node
          *             ^ xCoordinate of edge target node
          */
 
         // Create adjacency matrix
-        int[][][][] adj = new int[xSize][ySize][4][3];
+        int[][][][] adj = new int[xSize][ySize][diagonals ? 8 : 4][3];
         
         // Iterate for each cell
         for (int y = 0; y < ySize; y++) {
@@ -157,7 +159,7 @@ public class Board {
                 int[][] edges = adj[x][y];
 
                 // Grab adjacent nodes
-                int[][] adjacent = getAdjacent(x, y);
+                int[][] adjacent = diagonals ? getAdjacent_Diagonal(x, y) : getAdjacent(x, y);
 
                 // Fetch if current cell isnt wall
                 boolean isWall = getTile(x, y) == Cell.WALL;

@@ -35,7 +35,7 @@ public class GraphicsCanvas extends Canvas {
     private Graphics bufferGraphics; 
 
     // Define initial cell size
-    private int cellDimension = 10; //px
+    private int cellDimension = 8; //px
 
     // Define size of board
     int cellCountX = 60;
@@ -59,14 +59,19 @@ public class GraphicsCanvas extends Canvas {
     private Mode mode = Mode.FREEPLACE;
 
     // Stream for collecting calculation results
-    LinkedList<ArrayList<ArrayList<int[]>>> computationList = new LinkedList<ArrayList<ArrayList<int[]>>>();
-    // The arraylists holds arraylists for each of the type of cells
+    private LinkedList<ArrayList<ArrayList<int[]>>> computationList = new LinkedList<ArrayList<ArrayList<int[]>>>();
+    //                 ^^ The arraylists holds arraylists for each of the type of cells
 
-    // Current computationResult
-    ArrayList<ArrayList<int[]>> currentComputation = computationList.pollFirst();
+    // Current computationResult and shortest path
+    private ArrayList<ArrayList<int[]>> currentComputation = computationList.pollFirst();
+    private ArrayList<int[]> currentPath;
+
+    private boolean showVizualization = true;
+    private boolean enableDiagonals = false;
+    private boolean finishedVisualizing = true;
 
     // Timer for drawing steps
-    Timer vizualizationTimer = new Timer(100, null);
+    private Timer vizualizationTimer = new Timer(100, null);
     
 
     // Declare references to other UI components
@@ -152,6 +157,7 @@ public class GraphicsCanvas extends Canvas {
 
         // Clear vizualization list and vizualization and stop timer
         currentComputation = null;
+        currentPath = null;
         computationList = new LinkedList<>();
         vizualizationTimer.stop();
 
@@ -171,10 +177,11 @@ public class GraphicsCanvas extends Canvas {
      */
     public void run() {
         // Parse graph
-        int[][][][] adj = board.getGraph();
+        int[][][][] adj = board.getGraph(enableDiagonals);
 
         // Empty calculation list for collecting results
         computationList = new LinkedList<>();
+        currentPath = null;
 
         // Reset shortest path label
         // Update shortest path label
@@ -185,47 +192,63 @@ public class GraphicsCanvas extends Canvas {
             @Override
             public void run() {
                 // Get start and end nodes
-                Integer[] start = board.getStart();
-                Integer[] end = board.getEnd();
+                Integer[] s = board.getStart();
+                Integer[] e = board.getEnd();
+                int[] start = new int[] {s[0], s[1]};
+                int[] end = new int[] {e[0], e[1]};
 
                 // Run BFS
-                int[][][] results = Algorithm.BFS(adj, new int[]{start[0], start[1]}, new int[]{end[0], end[1]}, computationList);
+                int[][][] results = Algorithm.BFS(adj, start, end, computationList, showVizualization);
+
+                // Compute shortest path using results
+                currentPath = Algorithm.BFS_path(results, start, end);
 
                 // Update shortest path label
                 shortestPathLabel.setText("" + results[board.getEnd()[0]][board.getEnd()[1]][1]);
+
+                // Repaint for good measure
+                repaint();
             }
         });
 
         // Run thread
         thread.start();
 
-        // Run timer for forcing update of vizualization
-        vizualizationTimer.stop();
+        if (showVizualization) {
+            // Not finished visualizing
+            finishedVisualizing = false;
 
-        vizualizationTimer = new Timer((int)(1000000/Math.pow(vizualizationSpeedSlider.getValue(), 3)), new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                
-                // Maybe overkill, idk.
-                Runnable r = new Runnable() {
-                    public void run() {
-                        ArrayList<ArrayList<int[]>> computationInstance = computationList.pollFirst();
+            // Run timer for forcing update of vizualization
+            vizualizationTimer.stop();
 
-                        if (computationInstance != null) {
-                            currentComputation = computationInstance;
-                            rePaint();
+            vizualizationTimer = new Timer((int)(1000000/Math.pow(vizualizationSpeedSlider.getValue(), 3)), new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    
+                    // Maybe overkill, idk.
+                    Runnable r = new Runnable() {
+                        public void run() {
+                            ArrayList<ArrayList<int[]>> computationInstance = computationList.pollFirst();
+
+                            if (computationInstance != null) {
+                                finishedVisualizing = false;
+                                currentComputation = computationInstance;
+                                repaint();
+                            } else {
+                                finishedVisualizing = true;
+                                repaint();
+                            }
                         }
-                    }
-                };
-                Thread t = new Thread(r);
-                t.start();
+                    };
+                    Thread t = new Thread(r);
+                    t.start();
 
-                
-            }
-        });
-        vizualizationTimer.start();
-
-        
+                    
+                }
+            });
+            vizualizationTimer.start();
+        }    
+     
     }
 
     /**
@@ -270,6 +293,9 @@ public class GraphicsCanvas extends Canvas {
         
         // Paint the current computation
         paintComputation(g);
+
+        // Paint the computed shortest path
+        paintPath(g);
         
         // Paint the board
         paintBoard(g);
@@ -349,6 +375,10 @@ public class GraphicsCanvas extends Canvas {
      */
     private void paintComputation(Graphics g) {
 
+        if (!showVizualization) {
+            currentComputation = computationList.peekLast();
+        }
+
         if (currentComputation != null) {
 
             ArrayList<int[]> graynodes = currentComputation.get(0);
@@ -362,8 +392,19 @@ public class GraphicsCanvas extends Canvas {
                 drawTile(g, Color.YELLOW, n[0]*cellDimension, n[1]*cellDimension, cellDimension);
             }
 
+        }     
+    }
+
+    /**
+     * Draws the last computed shortest path to the screen
+     * @param g - Graphics object to draw path with
+     */
+    private void paintPath(Graphics g) {
+        if (currentPath != null && finishedVisualizing) {
+            for (int[] n : currentPath) {
+                drawTile(g, Color.CYAN, n[0]*cellDimension, n[1]*cellDimension, cellDimension);
+            }
         }
-        
     }
 
     private void drawTile(Graphics g, Color c, int xPos, int yPos, int size) {

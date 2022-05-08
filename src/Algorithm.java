@@ -19,7 +19,7 @@ public class Algorithm {
      * @param end
      * @return
      */
-    public static int[][][] BFS(int[][][][] graph, int[] start, int[] end, LinkedList<ArrayList<ArrayList<int[]>>> blackgrayNodes) {
+    public static int[][][] BFS(int[][][][] graph, int[] start, int[] end, LinkedList<ArrayList<ArrayList<int[]>>> vizualization, boolean saveVizualization) {
         // Define matrix to store node information
         int[][][] nodes = new int[graph.length][graph[0].length][4];
         //                                                               ^ {color, depth, parentX, parentY}
@@ -65,35 +65,39 @@ public class Algorithm {
                     // Set color, depth and parent
                     nodes[n[0]][n[1]] = new int[] {1, nodes[cnode[0]][cnode[1]][1] + 1, cnode[0], cnode[1]}; // Set color to gray
 
-                    // Add to gray nodes
-                    graynodes.add(new int[]{n[0], n[1]});
+                    if (saveVizualization) {
+                        // Add to gray nodes
+                        graynodes.add(new int[]{n[0], n[1]});
+                    }
                 }  
             }
 
             // Set color to black
             nodes[cnode[0]][cnode[1]][0] = 2;
 
-            // Remove from gray nodes and add to black nodes
-            graynodes.remove(cnode); // Might cause problems, because references
-            blacknodes.add(cnode);
+            if (saveVizualization) {
+                // Remove from gray nodes and add to black nodes
+                graynodes.remove(cnode); // Might cause problems, because references
+                blacknodes.add(cnode);
 
-            // Copy arraylists
-            ArrayList<int[]> gnc = new ArrayList<>();
-            for (int[] n : graynodes) {
-                gnc.add(n.clone());
+                // Copy arraylists
+                ArrayList<int[]> gnc = new ArrayList<>();
+                for (int[] n : graynodes) {
+                    gnc.add(n.clone());
+                }
+
+                // Copy arraylists
+                ArrayList<int[]> bnc = new ArrayList<>();
+                for (int[] n : blacknodes) {
+                    bnc.add(n.clone());
+                }
+
+                // Add to linkedlist
+                ArrayList<ArrayList<int[]>> bgn = new ArrayList<>();
+                bgn.add(gnc);
+                bgn.add(bnc);
+                vizualization.addLast(bgn);
             }
-
-            // Copy arraylists
-            ArrayList<int[]> bnc = new ArrayList<>();
-            for (int[] n : blacknodes) {
-                bnc.add(n.clone());
-            }
-
-            // Add to linkedlist
-            ArrayList<ArrayList<int[]>> bgn = new ArrayList<>();
-            bgn.add(gnc);
-            bgn.add(bnc);
-            blackgrayNodes.addLast(bgn);
 
             // Check if end node has been reached
             int[] endparent = new int[]{nodes[end[0]][end[1]][2], nodes[end[0]][end[1]][3]};
@@ -104,6 +108,26 @@ public class Algorithm {
 
         // Returns nodes matrix
         return nodes;
+    }
+
+    public static ArrayList<int[]> BFS_path(int[][][] result, int[] start, int[] end) {
+
+        // Set initial node to parent of end node
+        int[] node = new int[] {result[end[0]][end[1]][2], result[end[0]][end[1]][3]};
+
+        // Prepare ArrayList to hold path
+        ArrayList<int[]> path = new ArrayList<>();
+
+        while (node[0] != start[0] || node[1] != start[1]) {
+            // Add node to path
+            path.add(node);
+
+            // Set node to parent of current node
+            node = new int[] {result[node[0]][node[1]][2], result[node[0]][node[1]][3]};
+        }
+
+        // Return path
+        return path;
     }
 
     /**
