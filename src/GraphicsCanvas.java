@@ -76,6 +76,7 @@ public class GraphicsCanvas extends Canvas {
 
     // Declare references to other UI components
     private JCheckBox showVizualizationCheckbox;
+    private JCheckBox enableDiagonalsCB;
     private JSlider vizualizationSpeedSlider;
     private JComboBox algorithmComboBox;
 
@@ -89,6 +90,7 @@ public class GraphicsCanvas extends Canvas {
     /**
      * Constructor for GraphicsCanvas class. UI references to certain components are required.
      * @param showVizualizationCheckbox
+     * @param enableDiagonalsCB
      * @param vizualizationSpeedSlider
      * @param algorithmComboBox
      * @param startPointLabel
@@ -97,7 +99,7 @@ public class GraphicsCanvas extends Canvas {
      * @param computationalTimeLabel
      * @param outputLog
      */
-    public GraphicsCanvas(JCheckBox showVizualizationCheckbox, JSlider vizualizationSpeedSlider, JComboBox algorithmComboBox, JLabel startPointLabel, JLabel endPointLabel, JLabel shortestPathLabel, JLabel computationalTimeLabel, JTextArea outputLog) {
+    public GraphicsCanvas(JCheckBox showVizualizationCheckbox, JCheckBox enableDiagonalsCB, JSlider vizualizationSpeedSlider, JComboBox algorithmComboBox, JLabel startPointLabel, JLabel endPointLabel, JLabel shortestPathLabel, JLabel computationalTimeLabel, JTextArea outputLog) {
         super();
         //this.createBufferStrategy(2);
 
@@ -122,6 +124,7 @@ public class GraphicsCanvas extends Canvas {
 
         // Set references to ui objects
         this.showVizualizationCheckbox = showVizualizationCheckbox;
+        this.enableDiagonalsCB = enableDiagonalsCB;
         this.vizualizationSpeedSlider = vizualizationSpeedSlider;
         this.algorithmComboBox = algorithmComboBox;
         this.startPointLabel = startPointLabel;
@@ -187,6 +190,8 @@ public class GraphicsCanvas extends Canvas {
         // Update shortest path label
         shortestPathLabel.setText("N/A");
 
+        long t = System.currentTimeMillis();
+
         // Run pathfinding algorithm on separate thread
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -208,6 +213,8 @@ public class GraphicsCanvas extends Canvas {
 
                 // Repaint for good measure
                 repaint();
+
+                writeLog("Computation finished in: " + (System.currentTimeMillis() - t) + "ms\n");
             }
         });
 
@@ -459,8 +466,6 @@ public class GraphicsCanvas extends Canvas {
                     // Update startPans
                     startPanX = e.getX();
                     startPanY = e.getY();
-
-                    //writeLog("panX: " + panX + ", panY: " + panY + "\n");
                 } 
             }
         };
@@ -475,7 +480,6 @@ public class GraphicsCanvas extends Canvas {
                 // Calculate new zoom
                 double scroll = e.getWheelRotation();
                 zoom = zoom * (1 - 2*scroll/100.0);
-                writeLog("Zoom: " + zoom + "\n");
 
                 // Capture mouse position in world space after zoom
                 double[] afterZoomMPos = screenToWorld(e.getX(), e.getY());
@@ -484,13 +488,9 @@ public class GraphicsCanvas extends Canvas {
                 double nPanX = panX + (beforeZoomMPos[0] - afterZoomMPos[0]);
                 double nPanY = panY + (beforeZoomMPos[1] - afterZoomMPos[1]);
 
-                // Check that new pan values allow board visibility
-                // NOT NECESSARRY, SINCE THIS IS DONE WHEN MOUSE IS DRAGGED
-
                 // Update pan
                 panX = nPanX;
                 panY = nPanY;
-                //writeLog("Pan: " + panX + ", " + panY + "\n");
 
                 // Repaint canvas
                 repaint();
@@ -524,7 +524,6 @@ public class GraphicsCanvas extends Canvas {
                     panY = nPanY;
                     startPanX = e.getX();
                     startPanY = e.getY();
-                    //writeLog("panX: " + panX + ", panY: " + panY + "\n");
 
                     // Repaint canvas
                     repaint();
@@ -560,10 +559,6 @@ public class GraphicsCanvas extends Canvas {
         board.setTile(Cell.END, cellCountX - 1, cellCountY - 1);
     }
 
-    private void rePaint() {
-        repaint();
-    }
-
     public void resized() {
         buffer = new BufferedImage(this.getSize().width, this.getSize().height, BufferedImage.TYPE_INT_RGB);
         bufferGraphics = buffer.getGraphics();
@@ -571,6 +566,14 @@ public class GraphicsCanvas extends Canvas {
 
     public void updateTimer() {
         vizualizationTimer.setDelay((int)(1000000/Math.pow(vizualizationSpeedSlider.getValue(), 3)));
+    }
+
+    public void setShowVizualization(boolean showVizualization) {
+        this.showVizualization = showVizualization;
+    }
+
+    public void setEnableDiagonals(boolean enableDiagonals) {
+        this.enableDiagonals = enableDiagonals;
     }
 
 }

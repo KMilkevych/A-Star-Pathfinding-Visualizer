@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -18,6 +19,7 @@ public class GUI {
     private GraphicsCanvas graphicsCanvas;
 
     private JCheckBox showVizualizationCheckbox;
+    private JCheckBox enableDiagonalsCB;
     private JSlider vizualizationSpeedSlider;
     private JComboBox algorithmComboBox;
 
@@ -155,16 +157,35 @@ public class GUI {
         
         // Create checkbox
         JCheckBox showVizualizationCB = new JCheckBox();
+        showVizualizationCB.setSelected(true);
+        showVizualizationCB.addActionListener(e -> graphicsCanvas.setShowVizualization(showVizualizationCB.isSelected()));
         c.gridx = 1;
         c.gridy = 0;
         c.anchor = GridBagConstraints.WEST;
         settingsPanel.add(showVizualizationCB, c);
         this.showVizualizationCheckbox = showVizualizationCB;
 
+        // Create "Enable diagonals: " label
+        JLabel enableDiagonalsLabel = new JLabel("Enable diagonals:");
+        c.gridx = 0;
+        c.gridy = 1;
+        c.anchor =  GridBagConstraints.EAST;
+        settingsPanel.add(enableDiagonalsLabel, c);
+
+        // Create checkbox
+        JCheckBox enableDiagonalsCB = new JCheckBox();
+        enableDiagonalsCB.setSelected(false);
+        enableDiagonalsCB.addActionListener(e -> graphicsCanvas.setEnableDiagonals(enableDiagonalsCB.isSelected()));
+        c.gridx = 1;
+        c.gridy = 1;
+        c.anchor = GridBagConstraints.WEST;
+        settingsPanel.add(enableDiagonalsCB, c);
+        this.enableDiagonalsCB = enableDiagonalsCB;
+
         // Create "Vizualization speed:" label
         JLabel vizualizationSpeedLabel = new JLabel("Vizualization speed:");
         c.gridx = 0;
-        c.gridy = 1;
+        c.gridy = 2;
         c.anchor = GridBagConstraints.EAST;
         settingsPanel.add(vizualizationSpeedLabel, c);
 
@@ -172,7 +193,7 @@ public class GUI {
         JSlider vizualizationSpeedSlider = new JSlider(10, 100, 50);
         vizualizationSpeedSlider.addChangeListener(e -> graphicsCanvas.updateTimer());
         c.gridx = 1;
-        c.gridy = 1;
+        c.gridy = 2;
         c.anchor = GridBagConstraints.WEST;
         settingsPanel.add(vizualizationSpeedSlider, c);
         this.vizualizationSpeedSlider = vizualizationSpeedSlider;
@@ -180,14 +201,14 @@ public class GUI {
         // Create "Pathfinding algorithm" label
         JLabel pathfindingAlgorithmLabel = new JLabel("Algorithm:");
         c.gridx = 0;
-        c.gridy = 2;
+        c.gridy = 3;
         c.anchor = GridBagConstraints.EAST;
         settingsPanel.add(pathfindingAlgorithmLabel, c);
         
         // Add combobox for selection of algorithm
         JComboBox algorithmComboBox = new JComboBox<>(new String[] {"A*", "Breadth First Search", "Dijkstra's Algorithm", "Bellman Ford"});
         c.gridx = 1;
-        c.gridy = 2;
+        c.gridy = 3;
         c.anchor = GridBagConstraints.WEST;
         settingsPanel.add(algorithmComboBox, c);
         this.algorithmComboBox = algorithmComboBox;
@@ -288,7 +309,7 @@ public class GUI {
      */
     private Component makeCenterLayout() {
         // Create a sample canvas
-        GraphicsCanvas canvas = new GraphicsCanvas(showVizualizationCheckbox, vizualizationSpeedSlider, algorithmComboBox, startPointLabel, endPointLabel, shortestPathLabel, computationalTimeLabel, outputLog);
+        GraphicsCanvas canvas = new GraphicsCanvas(showVizualizationCheckbox, enableDiagonalsCB, vizualizationSpeedSlider, algorithmComboBox, startPointLabel, endPointLabel, shortestPathLabel, computationalTimeLabel, outputLog);
         canvas.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
                 canvas.resized();
