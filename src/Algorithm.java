@@ -94,6 +94,12 @@ public class Algorithm {
             bgn.add(gnc);
             bgn.add(bnc);
             blackgrayNodes.addLast(bgn);
+
+            // Check if end node has been reached
+            int[] endparent = new int[]{nodes[end[0]][end[1]][2], nodes[end[0]][end[1]][3]};
+            if (endparent[0] != -1 && endparent[1] != -1) {
+                return nodes;
+            }
         }
 
         // Returns nodes matrix
