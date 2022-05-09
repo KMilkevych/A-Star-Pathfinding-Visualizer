@@ -8,7 +8,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.plaf.InsetsUIResource;
 import javax.swing.text.*;
 /**
- * GUI Class for managing the Graphical User Interface
+ * GUI Class for managing the Graphical User Interface of the application.
  */
 public class GUI {
 
@@ -328,7 +328,7 @@ public class GUI {
     private Component makeSouthLayout() {
         
         // Create text area for output log
-        JTextArea outputLog = new JTextArea("Some basic output log\n", 6, 1);
+        JTextArea outputLog = new JTextArea("Welcome to Pathfinding Vizualizer!\n", 6, 1);
         outputLog.setEditable(false);
         outputLog.setLineWrap(true);
         /*

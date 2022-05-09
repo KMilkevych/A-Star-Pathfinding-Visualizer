@@ -20,7 +20,7 @@ enum Cell {
 }
 
 /**
- * A class representing a board/grid
+ * A class representing a board/grid consisting of Cells.
  */
 public class Board {
 
@@ -38,23 +38,28 @@ public class Board {
         this.xSize = xSize;
         this.ySize = ySize;
         this.board = new Cell[ySize][xSize];
-        fillBoard();
+        clearBoard();
     }
 
-    private void fillBoard() {
+    /**
+     * Fills the board with free cells and notes start and end nodes as not set.
+     */
+    public void clearBoard() {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
                 board[i][j] = Cell.FREE;
             }
         }
-    }
-
-    public void clearBoard() {
-        fillBoard();
         startset = false;
         endset = false;
     }
 
+    /**
+     * Places a specific tile type at a point on the board.
+     * @param tileType - Type of tile/cell to place.
+     * @param xPos - x-position on the board to place tile.
+     * @param yPos - y-position on the board to place tile.
+     */
     public void setTile(Cell tileType, int xPos, int yPos) {
         // If tile being set is START or END tile, update information automatically, and reset already placed start and end tiles
         if (tileType == Cell.START) {
@@ -78,41 +83,81 @@ public class Board {
             } 
         }
 
-        board[yPos][xPos] = tileType; // place cell to actual board
+        board[yPos][xPos] = tileType; // place cell/tile to actual board
     }
 
+    /**
+     * Gets type of tile/cell at specific position.
+     * @param xPos
+     * @param yPos
+     * @return
+     */
     public Cell getTile(int xPos, int yPos) {
         return board[yPos][xPos];
     }
 
+    /**
+     * Returns the board.
+     * @return
+     */
     public Cell[][] getBoard() {
         return board;
     }
 
+    /**
+     * Returns the x-Size of the board.
+     * @return
+     */
     public int getXSize() {
         return xSize;
     }
 
+    /**
+     * Returns the y-Size of the board.
+     * @return
+     */
     public int getYSize() {
         return ySize;
     }
 
+    /**
+     * Returns whether the start node has been set.
+     * @return
+     */
     public boolean isStartSet() {
         return startset;
     }
 
+    /**
+     * Returns whether the end node has been set.
+     * @return
+     */
     public boolean isEndSet() {
         return endset;
     }
 
+    /**
+     * Returns the coordinates of the start node.
+     * @return
+     */
     public int[] getStart() {
         return start;
     }
 
+    /**
+     * Returns the coordinates of the end node.
+     * @return
+     */
     public int[] getEnd() {
         return end;
     }
 
+    /**
+     * Computes coordinates of the cells adjacent straight to cell with specified x and y coordinates.
+     * @param xPos
+     * @param yPos
+     * @return
+     */
     private int[][] getAdjacent(int xPos, int yPos) {
 
         int[][] adj = new int[4][2];
@@ -124,6 +169,12 @@ public class Board {
         return adj;
     }
 
+    /**
+     * Computes coordinates of the cells adjacent diagonally to cell with specified x and y coordinates.
+     * @param xPos
+     * @param yPos
+     * @return
+     */
     private int[][] getAdjacent_Diagonal(int xPos, int yPos) {
 
         int[][] adj = new int[4][2];
@@ -144,11 +195,11 @@ public class Board {
         
         /**
          * Edges are stored in adjacency matrix representation on the form:
-         * new Integer[xSize][ySize][4][3]
-         *                              ^ xCoordinate, yCoordinate and weight of edge
-         *                           ^ number of adjacent nodes (8 if with diagonals, 4 if without)
-         *                    ^ yCoordinate of edge target node
-         *             ^ xCoordinate of edge target node
+         * new int[xSize][ySize][4][3]
+         *                          ^ xCoordinate, yCoordinate and weight of edge
+         *                       ^ number of adjacent nodes (8 if with diagonals, 4 if without)
+         *                ^ yCoordinate of edge target node
+         *         ^ xCoordinate of edge target node
          */
 
         // Create adjacency matrix
@@ -199,14 +250,14 @@ public class Board {
                         // If current cell isnt wall and adjacent cell isnt wall, and in boundaries
                         if (!isWall && (0 <= ax && ax < xSize) && (0 <= ay && ay < ySize) && !(getTile(ax, ay) == Cell.WALL)) {
                             // Put in diagonal edge
-                            edges[i+4] = new int[] {ax, ay, 1}; // Diagonal edges have weight 1
+                            edges[i+4] = new int[] {ax, ay, 1}; // Diagonal edges have weight 1, but possible to specify otherwise.
                         }
                     }
                 }
             }
         }
 
-        // Return adjacency map
+        // Return adjacency matrix.
         return adj;
     }
 }

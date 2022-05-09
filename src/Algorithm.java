@@ -1,10 +1,12 @@
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.ArrayList;
 
+/**
+ * Class containing pathfinding algorithms, and algorithms for recreating the shortest path.
+ */
 public class Algorithm {
     
     /**
@@ -18,7 +20,7 @@ public class Algorithm {
       * @param saveVizualization - Boolean indicating whether to supply computation steps to vizualization linked list.
       * @return
       */
-    public static int[][][] A_Star(int[][][][] graph, int[] start, int[] end, LinkedList<ArrayList<ArrayList<int[]>>> vizualization, boolean saveVizualizatio) {
+    public static int[][][] A_Star(int[][][][] graph, int[] start, int[] end, LinkedList<ArrayList<ArrayList<int[]>>> vizualization, boolean saveVizualization) {
         
         // Define matrix to store node information
         int[][][] nodes = new int[graph.length][graph[0].length][8];
@@ -88,8 +90,11 @@ public class Algorithm {
                     open.add(nodes[n[0]][n[1]]);
 
                 } else if (list == 1) {
-                    // Remove node from list of closed nodes
-                    closed.remove(nodes[n[0]][n[1]]);
+
+                    if (saveVizualization) {
+                        // Remove node from list of closed nodes
+                        closed.remove(nodes[n[0]][n[1]]);
+                    }
                     // Update node with new f, g, and parentX, parentY values based on current node
                     nodes[n[0]][n[1]] = newspec;
                     // Add node to list of open nodes
@@ -111,25 +116,28 @@ public class Algorithm {
             // Update node as closed
             nodes[cnode[6]][cnode[7]][0] = 1;
 
-            // Add node to closed nodes
-            closed.add(cnode);
+            if (saveVizualization) {
+                // Add node to closed nodes
+                closed.add(cnode);
 
-            // Add copy of queues to visualization list
-            ArrayList<int[]> o = new ArrayList<>();
-            for (int[] n : open) {
-                o.add(new int[] {n[6], n[7]});
+                // Add copy of queues to visualization list
+                ArrayList<int[]> o = new ArrayList<>();
+                for (int[] n : open) {
+                    o.add(new int[] {n[6], n[7]});
+                }
+
+                ArrayList<int[]> c = new ArrayList<>();
+                for (int[] n : closed) {
+                    c.add(new int[] {n[6], n[7]});
+                }
+
+                ArrayList<ArrayList<int[]>> openclosed = new ArrayList<>();
+                openclosed.add(o);
+                openclosed.add(c);
+
+                vizualization.addLast(openclosed);
             }
-
-            ArrayList<int[]> c = new ArrayList<>();
-            for (int[] n : closed) {
-                c.add(new int[] {n[6], n[7]});
-            }
-
-            ArrayList<ArrayList<int[]>> openclosed = new ArrayList<>();
-            openclosed.add(o);
-            openclosed.add(c);
-
-            vizualization.addLast(openclosed);
+            
         }
 
         return nodes;

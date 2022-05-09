@@ -140,8 +140,9 @@ public class GraphicsCanvas extends Canvas {
         // Call reset() to set initial zoom and pan depending on viewport size
         reset(width, height);
 
-        // Run performance test case
-        performanceTestCase();
+        // Set a start and end tile
+        board.setTile(Cell.START, 10, 30);
+        board.setTile(Cell.END, 50, 30);
 
         // Add a mouselistener to listen for different mouse inputs.
         this.addMouseListener(makeMouseInputAdapter());
@@ -584,20 +585,6 @@ public class GraphicsCanvas extends Canvas {
                 }
             }
         };
-    }
-
-    private void performanceTestCase() {
-        boolean se = true;
-        for (int i = 1; i < cellCountY; i += 2) {
-            
-            for (int j = 0; j < cellCountX - 1; j++) {
-                if (se) {board.setTile(Cell.WALL, j, i);} else {board.setTile(Cell.WALL, j+1, i);}
-            }
-            se = !se;
-        }
-
-        board.setTile(Cell.START, 0, 0);
-        board.setTile(Cell.END, cellCountX - 1, cellCountY - 1);
     }
 
     public void resized() {
