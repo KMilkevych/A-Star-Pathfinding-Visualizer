@@ -38,7 +38,7 @@ public class GUI {
      */
     private void makeFrame() {
         // Create frame
-        frame = new JFrame("Algorithm Vizualizer");
+        frame = new JFrame("Pathfinding Visualizer");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Allow application to terminate peacefully when being exited
         
         // Create content pane
