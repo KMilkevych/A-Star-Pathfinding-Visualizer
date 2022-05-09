@@ -25,6 +25,31 @@ enum Mode {
     }
 }
 
+enum ComputationalMethod {
+    ASTAR("A*"),
+    BFS("Breadth First Search");
+
+    private final String value;
+    private ComputationalMethod(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public static ComputationalMethod getEnum(String value) {
+        for (ComputationalMethod c : ComputationalMethod.values()) {
+            if (value.equals(c.getValue())) {
+                return c;
+            }
+        }
+        return ComputationalMethod.ASTAR;
+    }
+
+    
+}
+
 /**
  * A Graphics Canvas, used as the main viewport in the application.
  */
@@ -57,6 +82,7 @@ public class GraphicsCanvas extends Canvas {
 
     // Define initial mode
     private Mode mode = Mode.FREEPLACE;
+    private ComputationalMethod computationalMethod = ComputationalMethod.ASTAR;
 
     // Stream for collecting calculation results
     private LinkedList<ArrayList<ArrayList<int[]>>> computationList = new LinkedList<ArrayList<ArrayList<int[]>>>();
@@ -187,85 +213,90 @@ public class GraphicsCanvas extends Canvas {
         currentPath = null;
 
         // Reset shortest path label
-        // Update shortest path label
         shortestPathLabel.setText("N/A");
 
-        long t = System.currentTimeMillis();
+        // If Board has start and end set, run pathfinding algorithm.
+        if (board.isStartSet() && board.isEndSet()) {
 
-        // Run pathfinding algorithm on separate thread
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // Get start and end nodes
-                Integer[] s = board.getStart();
-                Integer[] e = board.getEnd();
-                int[] start = new int[] {s[0], s[1]};
-                int[] end = new int[] {e[0], e[1]};
+            // Get current time
+            long t = System.currentTimeMillis();
 
-                // Run BFS
-                //int[][][] results = Algorithm.BFS(adj, start, end, computationList, showVizualization);
-
-                // Compute shortest path using results
-                //currentPath = Algorithm.BFS_path(results, start, end);
-
-                // Run A*
-                int[][][] results = Algorithm.A_Star(adj, start, end, computationList, showVizualization);
-
-                // Compute shortest path using results
-                currentPath = Algorithm.A_Star_path(results, start, end);
-
-                // Update shortest path label
-                shortestPathLabel.setText("" + results[board.getEnd()[0]][board.getEnd()[1]][1]);
-
-                // Repaint for good measure
-                repaint();
-
-                writeLog("Computation finished in: " + (System.currentTimeMillis() - t) + "ms. Shortest path: " + currentPath.size() + " blocks.\n");
-            }
-        });
-
-        // Run thread
-        thread.start();
-
-        // Stop vizualizatiotimer
-        vizualizationTimer.stop();
-
-        if (showVizualization) {
-            // Not finished visualizing
-            finishedVisualizing = false;
-
-            // Run timer for forcing update of vizualization
-            vizualizationTimer = new Timer((int)(1000000/Math.pow(vizualizationSpeedSlider.getValue(), 3)), new ActionListener() {
+            // Run pathfinding algorithm on separate thread
+            Thread thread = new Thread(new Runnable() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
-                    
-                    // Maybe overkill, idk.
-                    Runnable r = new Runnable() {
-                        public void run() {
-                            ArrayList<ArrayList<int[]>> computationInstance = computationList.pollFirst();
+                public void run() {
 
-                            if (computationInstance != null) {
-                                finishedVisualizing = false;
-                                currentComputation = computationInstance;
-                                repaint();
-                            } else {
-                                finishedVisualizing = true;
-                                repaint();
-                            }
+                        // Get start and end nodes
+                        int[] start = board.getStart();
+                        int[] end = board.getEnd();
+
+                        // Run different algorithms depending on user selected computational method
+                        if (computationalMethod == ComputationalMethod.ASTAR) {
+                            // Run A*
+                            int[][][] results = Algorithm.A_Star(adj, start, end, computationList, showVizualization);
+                            // Compute shortest path using results
+                            currentPath = Algorithm.A_Star_path(results, start, end);
+                            // Update shortest path label
+                            shortestPathLabel.setText("" + results[board.getEnd()[0]][board.getEnd()[1]][1]);
+                        } else if (computationalMethod == ComputationalMethod.BFS) {
+                            // Run BFS
+                            int[][][] results = Algorithm.BFS(adj, start, end, computationList, showVizualization);
+                            // Compute shortest path using results
+                            currentPath = Algorithm.BFS_path(results, start, end);
+                            // Update shortest path label
+                            shortestPathLabel.setText("" + results[board.getEnd()[0]][board.getEnd()[1]][1]);
                         }
-                    };
-                    Thread t = new Thread(r);
-                    t.start();
+                        // Write log
+                        writeLog("Computation finished in: " + (System.currentTimeMillis() - t) + "ms. Shortest path: " + currentPath.size() + " blocks.\n");
+                        // Repaint for good measure
+                        repaint();
+                    }
+                });
 
-                    
-                }
-            });
-            vizualizationTimer.start();
+            // Run thread
+            thread.start();
+
+            // Stop vizualizatiotimer
+            vizualizationTimer.stop();
+
+            if (showVizualization) {
+                // Not finished visualizing
+                finishedVisualizing = false;
+
+                // Run timer for forcing update of vizualization
+                vizualizationTimer = new Timer((int)(1000000/Math.pow(vizualizationSpeedSlider.getValue(), 3)), new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        
+                        // Maybe overkill, idk.
+                        Runnable r = new Runnable() {
+                            public void run() {
+                                ArrayList<ArrayList<int[]>> computationInstance = computationList.pollFirst();
+
+                                if (computationInstance != null) {
+                                    finishedVisualizing = false;
+                                    currentComputation = computationInstance;
+                                    repaint();
+                                } else {
+                                    finishedVisualizing = true;
+                                    repaint();
+                                }
+                            }
+                        };
+                        Thread t = new Thread(r);
+                        t.start();  
+                    }
+                });
+                vizualizationTimer.start();
+            } else {
+                finishedVisualizing = true;
+                currentComputation = computationList.pollLast();
+            }
         } else {
-            finishedVisualizing = true;
-            currentComputation = computationList.pollLast();
-        }    
-     
+            // Write error message to log
+            writeLog("ERROR: START and END nodes required.\n");
+        }
+
     }
 
     /**
@@ -576,6 +607,10 @@ public class GraphicsCanvas extends Canvas {
 
     public void updateTimer() {
         vizualizationTimer.setDelay((int)(1000000/Math.pow(vizualizationSpeedSlider.getValue(), 3)));
+    }
+
+    public void updateComputationalMethod() {
+        computationalMethod = ComputationalMethod.getEnum(algorithmComboBox.getSelectedItem().toString());
     }
 
     public void setShowVizualization() {

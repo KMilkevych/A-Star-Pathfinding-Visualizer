@@ -206,7 +206,8 @@ public class GUI {
         settingsPanel.add(pathfindingAlgorithmLabel, c);
         
         // Add combobox for selection of algorithm
-        JComboBox algorithmComboBox = new JComboBox<>(new String[] {"A*", "Breadth First Search", "Dijkstra's Algorithm", "Bellman Ford"});
+        JComboBox algorithmComboBox = new JComboBox<>(new String[] {"A*", "Breadth First Search"});
+        algorithmComboBox.addActionListener(e -> graphicsCanvas.updateComputationalMethod());
         c.gridx = 1;
         c.gridy = 3;
         c.anchor = GridBagConstraints.WEST;

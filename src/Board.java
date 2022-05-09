@@ -97,12 +97,20 @@ public class Board {
         return ySize;
     }
 
-    public Integer[] getStart() {
-        return startset ? new Integer[] {start[0], start[1]} : new Integer[] {null, null};
+    public boolean isStartSet() {
+        return startset;
     }
 
-    public Integer[] getEnd() {
-        return endset ? new Integer[] {end[0], end[1]} : new Integer[] {null, null};
+    public boolean isEndSet() {
+        return endset;
+    }
+
+    public int[] getStart() {
+        return start;
+    }
+
+    public int[] getEnd() {
+        return end;
     }
 
     private int[][] getAdjacent(int xPos, int yPos) {
