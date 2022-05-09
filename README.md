@@ -1,20 +1,31 @@
 # A* Pathfinding Visualizer
 
-## Getting Started
+## Description
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+The __A* Pathfinding Visualizer__ is a desktop GUI application written in Java using Swing as the main GUI framework.
+This application features the following:
+- Dynamic GUI.
+- Drawing 2D "maze" by placing walls, as well as a start and end node.
+- Computing the shortest path from start to end node, using
+  - A* Pathfinding Algorithm
+  - Breadth First Search
+- Visualizing the computational process of the shortest path.
 
-## Folder Structure
+## Getting started
 
-The workspace contains two folders by default, where:
+To get started with __A* Pathfinding Visualizer__ download the latest release from the [releases](www.google.com) page, or clone this repository and compile using
+```
+javac -d ./bin ./src/*.java
+```
+Then run using:
+```
+java ./bin/PathfindingVisualizer
+```
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+## How to use
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+### Drawing a maze
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+### Choosing a pathfinding algorithm
 
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+### Running the visualization
