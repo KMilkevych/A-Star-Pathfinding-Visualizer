@@ -3,10 +3,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.plaf.InsetsUIResource;
-import javax.swing.text.*;
 /**
  * GUI Class for managing the Graphical User Interface of the application.
  */

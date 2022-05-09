@@ -1,5 +1,3 @@
-import java.util.HashMap;
-
 /**
  * Enum representing different cell types
  */

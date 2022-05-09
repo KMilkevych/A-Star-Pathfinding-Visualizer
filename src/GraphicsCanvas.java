@@ -5,7 +5,6 @@ import javax.swing.event.*;
 import java.awt.image.*;
 import javax.swing.plaf.DimensionUIResource;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ArrayList;
 
