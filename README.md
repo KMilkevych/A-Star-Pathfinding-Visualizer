@@ -13,7 +13,7 @@ This application features the following:
 
 ## Getting started
 
-To get started with __A* Pathfinding Visualizer__ download the latest release from the [releases](www.google.com) page, or clone this repository and compile using
+To get started with __A* Pathfinding Visualizer__ download the latest release from the [releases](https://github.com/KMilkevych/A-Star-Pathfinding-Visualizer/releases/) page, or clone this repository and compile using
 ```
 javac -d ./bin ./src/*.java
 ```
@@ -31,7 +31,30 @@ java ./bin/PathfindingVisualizer
 - Use the scroll wheel inside board to zoom in and out.
 
 ### Drawing a maze
+Select the the kind of tile you'd like to draw with, in the toolbar to the right:
+![Toolbar](link)
+The colors symbolize different kind of tiles:
+- RED: Start tile
+- BLUE: End tile
+- BLACK: Wall tile
+- GRAY: Eraser/Free tile
+
+Then draw the tile unto the board using left-click:
+![Drawing](link)
+
+Remember to place a start and end tile before proceeding to the next step.
 
 ### Choosing a pathfinding algorithm
 
+In the Settings menu at the left, select the desired pathfinding algorithm in the combobox:
+![Combobox](link)
+
 ### Running the visualization
+
+To run the visualization, press the Run button in the Configuration menu at the left:
+![Run](link)
+
+### Clearing the board
+
+To clear the board, press the Clear button in the Configuration menu at the left:
+![Clear](link)
