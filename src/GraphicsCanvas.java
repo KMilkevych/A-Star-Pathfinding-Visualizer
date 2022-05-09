@@ -220,20 +220,21 @@ public class GraphicsCanvas extends Canvas {
                 // Repaint for good measure
                 repaint();
 
-                writeLog("Computation finished in: " + (System.currentTimeMillis() - t) + "ms\n");
+                writeLog("Computation finished in: " + (System.currentTimeMillis() - t) + "ms. Shortest path: " + currentPath.size() + " blocks.\n");
             }
         });
 
         // Run thread
         thread.start();
 
+        // Stop vizualizatiotimer
+        vizualizationTimer.stop();
+
         if (showVizualization) {
             // Not finished visualizing
             finishedVisualizing = false;
 
             // Run timer for forcing update of vizualization
-            vizualizationTimer.stop();
-
             vizualizationTimer = new Timer((int)(1000000/Math.pow(vizualizationSpeedSlider.getValue(), 3)), new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -260,6 +261,9 @@ public class GraphicsCanvas extends Canvas {
                 }
             });
             vizualizationTimer.start();
+        } else {
+            finishedVisualizing = true;
+            currentComputation = computationList.pollLast();
         }    
      
     }
@@ -315,6 +319,7 @@ public class GraphicsCanvas extends Canvas {
 
         // Paint the grid
         paintGrid(g);
+    
     }
 
 
@@ -387,10 +392,6 @@ public class GraphicsCanvas extends Canvas {
      * @param g - Graphics object to draw computation instance with
      */
     private void paintComputation(Graphics g) {
-
-        if (!showVizualization) {
-            currentComputation = computationList.peekLast();
-        }
 
         if (currentComputation != null) {
 

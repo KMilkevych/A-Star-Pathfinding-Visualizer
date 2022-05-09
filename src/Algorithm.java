@@ -21,21 +21,21 @@ public class Algorithm {
     public static int[][][] A_Star(int[][][][] graph, int[] start, int[] end, LinkedList<ArrayList<ArrayList<int[]>>> vizualization, boolean saveVizualizatio) {
         
         // Define matrix to store node information
-        int[][][] nodes = new int[graph.length][graph[0].length][6];
-        //                                                      ^ {openness, f, g, h, parentX, parentY}
+        int[][][] nodes = new int[graph.length][graph[0].length][8];
+        //                                                      ^ {openness, f, g, h, parentX, parentY, thisX, thisY}
         //                                                         0 = open, 1 = closed, 2 = unspecified
 
         // Fill out matrix with values
         for (int i = 0; i < nodes.length; i++) {
             for (int j = 0; j < nodes[0].length; j++) {
-                nodes[i][j] = new int[]{2, Integer.MAX_VALUE, Integer.MAX_VALUE, Math.abs(i - end[0]) + Math.abs(j - end[1]), -1, -1}; // Use Manhattan distance for g values
+                nodes[i][j] = new int[]{2, Integer.MAX_VALUE, Integer.MAX_VALUE, Math.abs(i - end[0]) + Math.abs(j - end[1]), -1, -1, i, j}; // Use Manhattan distance for g values
             }
         }
 
         // Create comparator for priorityqueues
         Comparator<int[]> qc = new Comparator<int[]>() {
             public int compare(int[] a, int[] b) {
-                return nodes[a[0]][a[1]][1] - nodes[b[0]][b[1]][1]; // Compare using calculated f values for nodes
+                return a[1] - b[1]; // Compare using calculated f values for nodes
             }
         };
 
@@ -44,8 +44,8 @@ public class Algorithm {
         PriorityQueue<int[]> closed = new PriorityQueue<>(qc);
 
         // Enqueue start node
-        nodes[start[0]][start[1]] = new int[]{0, 0, 0, nodes[start[0]][start[1]][3], -1, -1};
-        open.add(new int[]{start[0], start[1], nodes[start[0]][start[1]][1]});
+        nodes[start[0]][start[1]] = new int[]{0, 0, 0, nodes[start[0]][start[1]][3], -1, -1, start[0], start[1]};
+        open.add(nodes[start[0]][start[1]]);
 
         // Iterate while there are still open nodes
         while (!open.isEmpty()) {
@@ -54,12 +54,12 @@ public class Algorithm {
             int[] cnode = open.poll();
 
             // Check if cnode is end/target node
-            if (cnode[0] == end[0] && cnode[1] == end[1]) {
+            if (cnode[6] == end[0] && cnode[7] == end[1]) {
                 break;
             }
 
             // Get adjacent nodes
-            int[][] adjacent = graph[cnode[0]][cnode[1]];
+            int[][] adjacent = graph[cnode[6]][cnode[7]];
 
             // Iterate over each adjacent node
             for (int[] n : adjacent) {
@@ -70,14 +70,14 @@ public class Algorithm {
                 // Get information on adjacent node
                 int list = nodes[n[0]][n[1]][0];
                 int pref = nodes[n[0]][n[1]][1];
-                int newg = nodes[cnode[0]][cnode[1]][2] + 1;
+                int newg = nodes[cnode[6]][cnode[7]][2] + 1;
                 int newf = nodes[n[0]][n[1]][3] + newg;
 
                 // If newf isnt better than the adjacent node's previous f, dont do anything
                 if (newf >= pref) {continue;}
 
                 // Compute new node spec
-                int[] newspec = new int[]{0, newf, newg, nodes[n[0]][n[1]][3], cnode[0], cnode[1]};
+                int[] newspec = new int[]{0, newf, newg, nodes[n[0]][n[1]][3], cnode[6], cnode[7], n[0], n[1]};
 
 
                 // Act depending on if the node is in the open or closed list
@@ -85,23 +85,23 @@ public class Algorithm {
                     // Update node with new f, g, and parentX, parentY values based on current node
                     nodes[n[0]][n[1]] = newspec;
                     // Add node to list of open nodes
-                    open.add(new int[]{n[0], n[1], newf});
+                    open.add(nodes[n[0]][n[1]]);
 
                 } else if (list == 1) {
                     // Remove node from list of closed nodes
-                    closed.remove(new int[]{n[0], n[1], pref});
+                    closed.remove(nodes[n[0]][n[1]]);
                     // Update node with new f, g, and parentX, parentY values based on current node
                     nodes[n[0]][n[1]] = newspec;
                     // Add node to list of open nodes
-                    open.add(new int[]{n[0], n[1], newf});
+                    open.add(nodes[n[0]][n[1]]);
 
                 } else if (list == 0) {
                     // Remove node from queue
-                    open.remove(new int[]{n[0], n[1], pref});
+                    open.remove(nodes[n[0]][n[1]]);
                     // Update node with new f, g, and parentX, parentY values based on current node
                     nodes[n[0]][n[1]] = newspec;
                     // Add node back to queue
-                    open.add(new int[] {n[0], n[1], newf});
+                    open.add(nodes[n[0]][n[1]]);
                 }
             }
 
@@ -109,7 +109,7 @@ public class Algorithm {
             open.remove(cnode);
 
             // Update node as closed
-            nodes[cnode[0]][cnode[1]][0] = 1;
+            nodes[cnode[6]][cnode[7]][0] = 1;
 
             // Add node to closed nodes
             closed.add(cnode);
@@ -117,12 +117,12 @@ public class Algorithm {
             // Add copy of queues to visualization list
             ArrayList<int[]> o = new ArrayList<>();
             for (int[] n : open) {
-                o.add(new int[] {n[0], n[1]});
+                o.add(new int[] {n[6], n[7]});
             }
 
             ArrayList<int[]> c = new ArrayList<>();
             for (int[] n : closed) {
-                o.add(new int[] {n[0], n[1]});
+                c.add(new int[] {n[6], n[7]});
             }
 
             ArrayList<ArrayList<int[]>> openclosed = new ArrayList<>();
@@ -137,11 +137,14 @@ public class Algorithm {
 
     public static ArrayList<int[]> A_Star_path(int[][][] result, int[] start, int[] end) {
 
+        // Prepare ArrayList to hold path
+        ArrayList<int[]> path = new ArrayList<>();
+        
         // Set initial node to parent of end node
         int[] node = new int[] {result[end[0]][end[1]][4], result[end[0]][end[1]][5]};
 
-        // Prepare ArrayList to hold path
-        ArrayList<int[]> path = new ArrayList<>();
+        // If end node has no parent, no path has been found
+        if (node[0] == -1 && node[1] == -1) {return path;}
 
         while (node[0] != start[0] || node[1] != start[1]) {
             // Add node to path
