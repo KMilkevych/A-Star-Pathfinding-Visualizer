@@ -15,6 +15,15 @@ enum Cell {
     public int getValue() {
         return value;
     }
+
+    public static Cell getEnum(int value) {
+        for (Cell c : Cell.values()) {
+            if(value == c.getValue()) {
+                return c;
+            }
+        }
+        return Cell.WALL;
+    }
 }
 
 /**

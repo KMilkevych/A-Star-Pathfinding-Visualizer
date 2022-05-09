@@ -137,11 +137,15 @@ public class GraphicsCanvas extends Canvas {
         board = new Board(cellCountX, cellCountY);
 
         // Call reset() to set initial zoom and pan depending on viewport size
-        reset(width, height);
+        resetViewport(width, height);
 
         // Set a start and end tile
         board.setTile(Cell.START, 10, 30);
         board.setTile(Cell.END, 50, 30);
+
+        // Update start and end labels
+        startPointLabel.setText("(" + board.getStart()[0] + ", " + board.getStart()[1] + ")");
+        endPointLabel.setText("(" + board.getEnd()[0] + ", " + board.getEnd()[1] + ")");
 
         // Add a mouselistener to listen for different mouse inputs.
         this.addMouseListener(makeMouseInputAdapter());
@@ -184,12 +188,28 @@ public class GraphicsCanvas extends Canvas {
         // Clear board
         board.clearBoard();
 
+        // Update labels
+        startPointLabel.setText("NOT SET");
+        endPointLabel.setText("NOT SET");
+        shortestPathLabel.setText("N/A");
+        computationalTimeLabel.setText("N/A");
+
         // Clear vizualization list and vizualization and stop timer
         currentComputation = null;
         currentPath = null;
         computationList = new LinkedList<>();
         vizualizationTimer.stop();
 
+        // Reset the viewport
+        resetViewport(viewportWidth, viewportHeight);
+    }
+
+    /**
+     * Resets the pan and zoom only, using specified viewport sizes.
+     * @param viewportWidth
+     * @param viewportHeight
+     */
+    public void resetViewport(int viewportWidth, int viewportHeight) {
         // Reset zoom
         zoom = 1;
 
@@ -212,8 +232,9 @@ public class GraphicsCanvas extends Canvas {
         computationList = new LinkedList<>();
         currentPath = null;
 
-        // Reset shortest path label
+        // Reset shortest path and computational time labels
         shortestPathLabel.setText("N/A");
+        computationalTimeLabel.setText("N/A");
 
         // If Board has start and end set, run pathfinding algorithm.
         if (board.isStartSet() && board.isEndSet()) {
@@ -236,18 +257,20 @@ public class GraphicsCanvas extends Canvas {
                             int[][][] results = Algorithm.A_Star(adj, start, end, computationList, showVizualization);
                             // Compute shortest path using results
                             currentPath = Algorithm.A_Star_path(results, start, end);
-                            // Update shortest path label
-                            shortestPathLabel.setText("" + results[board.getEnd()[0]][board.getEnd()[1]][1]);
                         } else if (computationalMethod == ComputationalMethod.BFS) {
                             // Run BFS
                             int[][][] results = Algorithm.BFS(adj, start, end, computationList, showVizualization);
                             // Compute shortest path using results
-                            currentPath = Algorithm.BFS_path(results, start, end);
-                            // Update shortest path label
-                            shortestPathLabel.setText("" + results[board.getEnd()[0]][board.getEnd()[1]][1]);
+                            currentPath = Algorithm.BFS_path(results, start, end);   
                         }
+                        // Update shortest path label
+                        shortestPathLabel.setText("" + currentPath.size());
+                        // Get total computational time
+                        long t2 = System.currentTimeMillis() - t;
+                        // Update label
+                        computationalTimeLabel.setText(t2 + " ms");
                         // Write log
-                        writeLog("Computation finished in: " + (System.currentTimeMillis() - t) + "ms. Shortest path: " + currentPath.size() + " blocks.\n");
+                        writeLog("Computation finished in: " + t2 + "ms. Shortest path: " + currentPath.size() + " blocks.\n");
                         // Repaint for good measure
                         repaint();
                     }
@@ -455,6 +478,14 @@ public class GraphicsCanvas extends Canvas {
         }
     }
 
+    /**
+     * Paints draws a tile with specified coordinates, size and color, using specified graphics object.
+     * @param g - Graphics object to draw tile with.
+     * @param c - Color to draw tile with.
+     * @param xPos - desired x-position of tile
+     * @param yPos - desired y-position of tile
+     * @param size - desired size (dimension) of tile.
+     */
     private void drawTile(Graphics g, Color c, int xPos, int yPos, int size) {
         // Apply zoom before drawing
         double[] pos = worldToScreen(xPos, yPos);
@@ -465,12 +496,24 @@ public class GraphicsCanvas extends Canvas {
         g.fillRect((int) pos[0], (int) pos[1], scale, scale);
     }
 
+    /**
+     * Converts a set of world coordinates to screen coordinates.
+     * @param x
+     * @param y
+     * @return
+     */
     private double[] worldToScreen(int x, int y) {
         double newX = ((x - panX)*zoom);
         double newY = ((y - panY)*zoom);
         return new double[]{newX, newY};
     }
 
+    /**
+     * Converts a set of screen coordinates to world coordinates.
+     * @param x
+     * @param y
+     * @return
+     */
     private double[] screenToWorld(int x, int y) {
         double newX = (x/zoom + panX);
         double newY = (y/zoom + panY);
@@ -478,12 +521,42 @@ public class GraphicsCanvas extends Canvas {
     }
 
     /**
-     * Writex specified text to outputLog. Automatically moves the caret position down to bottom.
+     * Writes specified text to outputLog. Automatically moves the caret position down to bottom.
      * @param text - text to write
      */
     private void writeLog(String text) {
         outputLog.append(text);
         outputLog.setCaretPosition(outputLog.getDocument().getLength());
+    }
+
+    /**
+     * Places tile at specified x and y coordinates to board, using currently active mode.
+     * If the placed tile is a start or end tile, updates the labels.
+     * @param xPos
+     * @param yPos
+     */
+    private void placeTile(int xPos, int yPos) {
+        // If tile that is being placed on top of (effectively erased) is a start or end tile, update the labels
+        if (board.getTile(xPos, yPos).equals(Cell.START)) {
+            startPointLabel.setText("NOT SET");
+        }
+
+        if (board.getTile(xPos, yPos).equals(Cell.END)) {
+            endPointLabel.setText("NOT SET");
+        }
+
+        // Set the tile on board using transformed coordinates
+        board.setTile(Cell.getEnum(mode.getValue()), xPos, yPos);
+
+        // If tile that was just set, is a start tile, update label
+        if (board.getTile(xPos, yPos).equals(Cell.START)) {
+            startPointLabel.setText("(" + xPos + ", " + yPos + ")");
+        }
+
+        // If tile that was just set, is an end tile, update label
+        if (board.getTile(xPos, yPos).equals(Cell.END)) {
+            endPointLabel.setText("(" + xPos + ", " + yPos + ")");
+        }
     }
 
     private MouseInputAdapter makeMouseInputAdapter() {
@@ -497,8 +570,8 @@ public class GraphicsCanvas extends Canvas {
                     int yTile = (int) (worldPos[1] / cellDimension);
 
                     if ((xTile >= 0 && xTile < cellCountX) && (yTile >= 0 && yTile < cellCountY)) {
-                        // Set the tile on board using transformed coordinates
-                        board.setTile(Cell.values()[mode.getValue()], xTile, yTile); // This is bad code but enum implementation stops me from doing otherwise
+                        // Place tile
+                        placeTile(xTile, yTile);
 
                         // Repaint the canvas
                         repaint();
@@ -575,8 +648,8 @@ public class GraphicsCanvas extends Canvas {
                     int yTile = (int) (worldPos[1] / cellDimension);
 
                     if ((xTile >= 0 && xTile < cellCountX) && (yTile >= 0 && yTile < cellCountY)) {
-                        // Set the tile on board using transformed coordinates
-                        board.setTile(Cell.values()[mode.getValue()], xTile, yTile); // This is bad code but enum implementation stops me from doing otherwise
+                        // Place Tile
+                        placeTile(xTile, yTile);
 
                         // Repaint the canvas
                         repaint();

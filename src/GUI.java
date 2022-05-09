@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-
 import javax.swing.*;
 import javax.swing.plaf.InsetsUIResource;
 /**
@@ -231,12 +230,12 @@ public class GUI {
         // Create Labels for showing info on startpoint, endpoint, shortest path length and computation time
         JLabel startLabel = new JLabel("Startpoint:");
 
-        JLabel startValLabel = new JLabel("(X, X)");
+        JLabel startValLabel = new JLabel("NOT SET");
         this.startPointLabel = startValLabel;
         
         JLabel endLabel = new JLabel("Endpoint:");
 
-        JLabel endValLabel = new JLabel("(X, X)");
+        JLabel endValLabel = new JLabel("NOT SET");
         this.endPointLabel = endValLabel;
 
         JLabel shortestPathLabel = new JLabel("Shortest path:");
@@ -246,8 +245,8 @@ public class GUI {
 
         JLabel computationTimeLabel = new JLabel("Time:");
 
-        JLabel computationTimeValLabel = new JLabel("Xs");
-        this.computationalTimeLabel = computationTimeLabel;
+        JLabel computationTimeValLabel = new JLabel("N/A");
+        this.computationalTimeLabel = computationTimeValLabel;
 
         // Add left-side labels to layout
         c.gridx = 0;
