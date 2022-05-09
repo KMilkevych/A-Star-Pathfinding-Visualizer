@@ -23,6 +23,11 @@ java ./bin/PathfindingVisualizer
 ```
 
 ## How to use
+### Basic controls
+
+- Use the left mouse button to interact with GUI components, as well as draw tiles on the board.
+- Use the right mouse button inside board to pan around.
+- Use the scroll wheel inside board to zoom in and out.
 
 ### Drawing a maze
 
