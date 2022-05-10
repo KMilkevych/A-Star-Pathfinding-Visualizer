@@ -20,7 +20,7 @@ javac -d ./bin ./src/*.java
 Then run using:
 ```
 cd bin
-java ./bin/PathfindingVisualizer
+java PathfindingVisualizer
 ```
 
 ## How to use
